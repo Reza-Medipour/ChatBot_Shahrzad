@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  chat-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-app
+    ports:
+      - "8082:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - chat-network
+
+networks:
+  chat-network:
+    driver: bridge
