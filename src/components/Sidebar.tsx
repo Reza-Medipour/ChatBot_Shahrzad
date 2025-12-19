@@ -43,17 +43,17 @@ export default function Sidebar({
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={onClose}
         />
       )}
 
       <div className={`
-        fixed lg:relative inset-y-0 right-0 z-50
+        fixed inset-y-0 right-0 z-50
         w-80 bg-gradient-to-b from-[#1e40af] to-[#1e3a8a] text-white
-        flex flex-col h-screen shadow-2xl
+        flex flex-col h-full shadow-2xl
         transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+        ${isOpen ? 'translate-x-0' : 'translate-x-full'}
       `}>
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center justify-between mb-6">
@@ -71,7 +71,7 @@ export default function Sidebar({
             </div>
             <button
               onClick={onClose}
-              className="lg:hidden p-2 hover:bg-white/10 rounded-lg transition-colors"
+              className="p-2 hover:bg-white/10 rounded-lg transition-colors"
             >
               <X className="w-6 h-6" />
             </button>

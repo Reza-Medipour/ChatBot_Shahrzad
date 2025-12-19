@@ -210,27 +210,37 @@ function App() {
   };
 
   if (showWelcome) {
-    return <WelcomePage onStartChat={handleStartChat} />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <WelcomePage onStartChat={handleStartChat} />
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <Sidebar
-        sessions={sessions}
-        currentSessionId={currentSessionId}
-        onSelectSession={handleSelectSession}
-        onNewChat={handleNewChat}
-        onDeleteSession={handleDeleteSession}
-        onBackToWelcome={handleBackToWelcome}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-      <ChatInterface
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        onOpenSidebar={() => setIsSidebarOpen(true)}
-      />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+      <div className="w-full max-w-md h-screen shadow-2xl relative">
+        <div className="flex h-full overflow-hidden bg-white">
+          <Sidebar
+            sessions={sessions}
+            currentSessionId={currentSessionId}
+            onSelectSession={handleSelectSession}
+            onNewChat={handleNewChat}
+            onDeleteSession={handleDeleteSession}
+            onBackToWelcome={handleBackToWelcome}
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
+          />
+          <ChatInterface
+            messages={messages}
+            onSendMessage={handleSendMessage}
+            isLoading={isLoading}
+            onOpenSidebar={() => setIsSidebarOpen(true)}
+          />
+        </div>
+      </div>
     </div>
   );
 }
