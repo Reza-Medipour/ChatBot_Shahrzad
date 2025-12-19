@@ -10,6 +10,7 @@ function App() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadSessions();
@@ -78,6 +79,14 @@ function App() {
 
   const handleSelectSession = (sessionId: string) => {
     setCurrentSessionId(sessionId);
+    setShowWelcome(false);
+  };
+
+  const handleBackToWelcome = () => {
+    setShowWelcome(true);
+    setCurrentSessionId(null);
+    setMessages([]);
+    setIsSidebarOpen(false);
   };
 
   const handleDeleteSession = async (sessionId: string) => {
@@ -212,11 +221,15 @@ function App() {
         onSelectSession={handleSelectSession}
         onNewChat={handleNewChat}
         onDeleteSession={handleDeleteSession}
+        onBackToWelcome={handleBackToWelcome}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
       <ChatInterface
         messages={messages}
         onSendMessage={handleSendMessage}
         isLoading={isLoading}
+        onOpenSidebar={() => setIsSidebarOpen(true)}
       />
     </div>
   );
