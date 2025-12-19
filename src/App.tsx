@@ -113,7 +113,7 @@ function App() {
 
   const generateBotResponse = async (userMessage: string, sessionId: string): Promise<string> => {
     try {
-      const apiUrl = import.meta.env.VITE_CHAT_API_URL || 'http://103.75.196.71:8020/chat';
+      const apiUrl = "/chat";
 
       const response = await fetch(apiUrl, {
         method: 'POST',

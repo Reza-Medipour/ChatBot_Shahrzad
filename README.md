@@ -52,14 +52,28 @@ npm run build
 
 ## استقرار با Docker
 
+### پیش‌نیازها
+
+مطمئن شوید که API Backend شما روی پورت 8020 در حال اجرا است:
+```bash
+# بررسی وضعیت API
+curl http://172.17.0.1:8020/chat
+```
+
 ### ساخت و اجرای کانتینر
 
 ```bash
-# ساخت ایمیج
-docker-compose build
+# توقف کانتینر قبلی (اگر وجود دارد)
+docker-compose down
+
+# ساخت مجدد ایمیج
+docker-compose build --no-cache
 
 # اجرای کانتینر
 docker-compose up -d
+
+# مشاهده لاگ‌ها
+docker-compose logs -f
 ```
 
 ### دسترسی به اپلیکیشن
@@ -68,6 +82,27 @@ docker-compose up -d
 
 ```
 http://103.75.196.71:8082
+```
+
+### عیب‌یابی
+
+اگر مشکل CORS دارید:
+
+1. بررسی کنید Nginx به درستی راه‌اندازی شده است:
+```bash
+docker exec -it <container-name> nginx -t
+```
+
+2. بررسی لاگ‌های Nginx:
+```bash
+docker logs <container-name>
+```
+
+3. تست proxy:
+```bash
+curl http://103.75.196.71:8082/chat -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"session_id":"test","message":"سلام"}'
 ```
 
 ## ساختار پروژه
@@ -88,9 +123,18 @@ src/
 
 اپلیکیشن به API خارجی متصل است:
 
-**Endpoint:** `http://103.75.196.71:8020/chat`
+**Endpoint Backend:** `http://172.17.0.1:8020/chat`
 
 **Method:** `POST`
+
+### حل مشکل CORS
+
+برای جلوگیری از خطای CORS، از Nginx Proxy استفاده شده است:
+
+- **Frontend Request:** `/chat` (relative path)
+- **Nginx Proxy:** `http://172.17.0.1:8020/chat`
+
+این روش باعث می‌شود درخواست‌ها از همان domain ارسال شوند و مشکل CORS حل شود.
 
 **Request Body:**
 ```json
