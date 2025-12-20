@@ -35,13 +35,13 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
 
   return (
     <div className="h-screen w-full bg-gradient-to-br from-[#1e40af] via-[#3b82f6] to-[#60a5fa] flex items-center justify-center overflow-auto">
-      <div className="w-full max-w-md px-4 py-6">
+      <div className="w-full max-w-md px-4 py-8">
         <div className="text-center mb-6 animate-fade-in">
-          <div className="flex justify-center mb-6">
+          <div className="flex justify-center mb-6 pt-4">
             <img
               src="/picture2.png"
               alt="Login"
-              className="w-full max-w-[280px] h-auto drop-shadow-2xl rounded-2xl"
+              className="w-full max-w-[360px] h-auto drop-shadow-2xl rounded-2xl"
             />
           </div>
 

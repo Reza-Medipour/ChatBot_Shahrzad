@@ -148,9 +148,13 @@ function App() {
     setShowWelcome(false);
   };
 
-  const handleStartChat = () => {
-    setShowWelcome(false);
-    setShowLogin(true);
+  const handleStartChat = async () => {
+    if (userId) {
+      await createNewSession();
+    } else {
+      setShowWelcome(false);
+      setShowLogin(true);
+    }
   };
 
   const handleNewChat = async () => {
