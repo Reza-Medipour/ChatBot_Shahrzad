@@ -1,4 +1,4 @@
-import { Plus, MessageSquare, Trash2, X } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, X, LogOut, Phone } from 'lucide-react';
 import { ChatSession } from '../lib/supabase';
 
 interface SidebarProps {
@@ -8,6 +8,8 @@ interface SidebarProps {
   onNewChat: () => void;
   onDeleteSession: (sessionId: string) => void;
   onBackToWelcome: () => void;
+  onLogout: () => void;
+  phoneNumber: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -19,6 +21,8 @@ export default function Sidebar({
   onNewChat,
   onDeleteSession,
   onBackToWelcome,
+  onLogout,
+  phoneNumber,
   isOpen,
   onClose,
 }: SidebarProps) {
@@ -138,13 +142,28 @@ export default function Sidebar({
           )}
         </div>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 space-y-3">
           <div className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-sm">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-              <span className="text-blue-100">آنلاین و آماده پاسخگویی</span>
+            <div className="flex items-center gap-2 mb-3">
+              <Phone className="w-4 h-4 text-blue-200" />
+              <span className="text-sm text-blue-100">کاربر:</span>
+            </div>
+            <div className="text-white font-bold text-sm" dir="ltr">
+              {phoneNumber}
             </div>
           </div>
+
+          <button
+            onClick={() => {
+              if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
+                onLogout();
+              }
+            }}
+            className="w-full bg-red-500/20 hover:bg-red-500/30 text-white font-bold py-3 px-4 rounded-xl border-2 border-red-400/30 hover:border-red-400/50 transition-all duration-200 flex items-center justify-center gap-2"
+          >
+            <LogOut className="w-5 h-5" />
+            خروج از حساب
+          </button>
         </div>
       </div>
     </>

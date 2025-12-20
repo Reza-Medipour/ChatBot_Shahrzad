@@ -9,9 +9,17 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+export interface User {
+  id: string;
+  phone_number: string;
+  created_at: string;
+  last_login: string;
+}
+
 export interface ChatSession {
   id: string;
   title: string;
+  user_id: string | null;
   created_at: string;
   updated_at: string;
 }

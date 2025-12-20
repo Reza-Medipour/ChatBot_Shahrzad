@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import WelcomePage from './components/WelcomePage';
+import LoginPage from './components/LoginPage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import { supabase, ChatSession, Message } from './lib/supabase';
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -13,19 +17,29 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    loadSessions();
+    const savedUserId = localStorage.getItem('userId');
+    const savedPhoneNumber = localStorage.getItem('phoneNumber');
+
+    if (savedUserId && savedPhoneNumber) {
+      setUserId(savedUserId);
+      setPhoneNumber(savedPhoneNumber);
+      setShowWelcome(false);
+      setShowLogin(false);
+      loadSessions(savedUserId);
+    }
   }, []);
 
   useEffect(() => {
-    if (currentSessionId) {
+    if (currentSessionId && userId) {
       loadMessages(currentSessionId);
     }
-  }, [currentSessionId]);
+  }, [currentSessionId, userId]);
 
-  const loadSessions = async () => {
+  const loadSessions = async (userIdParam: string) => {
     const { data, error } = await supabase
       .from('chat_sessions')
       .select('*')
+      .eq('user_id', userIdParam)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -51,10 +65,75 @@ function App() {
     setMessages(data || []);
   };
 
+  const handleLogin = async (phone: string) => {
+    try {
+      const { data: existingUser, error: fetchError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('phone_number', phone)
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error('Error checking user:', fetchError);
+        throw fetchError;
+      }
+
+      let user = existingUser;
+
+      if (!user) {
+        const { data: newUser, error: insertError } = await supabase
+          .from('users')
+          .insert([{ phone_number: phone }])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating user:', insertError);
+          throw insertError;
+        }
+
+        user = newUser;
+      } else {
+        await supabase
+          .from('users')
+          .update({ last_login: new Date().toISOString() })
+          .eq('id', user.id);
+      }
+
+      localStorage.setItem('userId', user.id);
+      localStorage.setItem('phoneNumber', phone);
+
+      setUserId(user.id);
+      setPhoneNumber(phone);
+      setShowLogin(false);
+      setShowWelcome(false);
+
+      await loadSessions(user.id);
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('userId');
+    localStorage.removeItem('phoneNumber');
+    setUserId(null);
+    setPhoneNumber(null);
+    setSessions([]);
+    setCurrentSessionId(null);
+    setMessages([]);
+    setShowWelcome(true);
+    setShowLogin(false);
+    setIsSidebarOpen(false);
+  };
+
   const createNewSession = async () => {
+    if (!userId) return;
+
     const { data, error } = await supabase
       .from('chat_sessions')
-      .insert([{ title: 'چت جدید' }])
+      .insert([{ title: 'چت جدید', user_id: userId }])
       .select()
       .single();
 
@@ -69,8 +148,9 @@ function App() {
     setShowWelcome(false);
   };
 
-  const handleStartChat = async () => {
-    await createNewSession();
+  const handleStartChat = () => {
+    setShowWelcome(false);
+    setShowLogin(true);
   };
 
   const handleNewChat = async () => {
@@ -140,7 +220,7 @@ function App() {
   };
 
   const handleSendMessage = async (content: string) => {
-    if (!currentSessionId) return;
+    if (!currentSessionId || !userId) return;
 
     setIsLoading(true);
 
@@ -157,7 +237,7 @@ function App() {
       .single();
 
     if (userError) {
-      console.error('Error sending message:', error);
+      console.error('Error sending message:', userError);
       setIsLoading(false);
       return;
     }
@@ -182,7 +262,7 @@ function App() {
         .eq('id', currentSessionId);
     }
 
-    await loadSessions();
+    await loadSessions(userId);
 
     setTimeout(async () => {
       const botResponse = await generateBotResponse(content, currentSessionId);
@@ -219,6 +299,16 @@ function App() {
     );
   }
 
+  if (showLogin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <LoginPage onLogin={handleLogin} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
       <div className="w-full max-w-md h-screen shadow-2xl relative">
@@ -230,6 +320,8 @@ function App() {
             onNewChat={handleNewChat}
             onDeleteSession={handleDeleteSession}
             onBackToWelcome={handleBackToWelcome}
+            onLogout={handleLogout}
+            phoneNumber={phoneNumber || ''}
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
           />
