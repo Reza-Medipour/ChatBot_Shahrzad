@@ -145,19 +145,21 @@ export default function LoginPage({ onVerified }: LoginPageProps) {
                 <label className="block text-sm font-semibold text-blue-900 mb-2 text-right">
                   شماره تلفن
                 </label>
-                <div className="relative">
-                  <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-5 h-5" />
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    disabled
-                    className="w-full pr-10 pl-4 py-3 border-2 border-blue-200 rounded-xl text-left bg-blue-100 text-blue-700"
-                    dir="ltr"
-                  />
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-5 h-5" />
+                    <input
+                      type="tel"
+                      value={phoneNumber}
+                      disabled
+                      className="w-full pr-10 pl-4 py-3 border-2 border-blue-200 rounded-xl text-left bg-blue-100 text-blue-700"
+                      dir="ltr"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={handleEditPhone}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-600 text-sm font-semibold hover:text-blue-800"
+                    className="px-4 py-3 bg-white border-2 border-blue-600 text-blue-600 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 text-sm"
                   >
                     ویرایش
                   </button>

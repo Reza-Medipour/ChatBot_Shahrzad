@@ -158,7 +158,7 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="پیام خود را بنویسید... (Shift+Enter برای ارسال)"
+              placeholder="پیام خود را بنویسید..."
               className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1e40af] transition-colors text-right text-sm resize-none min-h-[40px] max-h-[120px]"
               disabled={isLoading}
               dir="rtl"
@@ -182,9 +182,6 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
               <span>ارسال</span>
             </button>
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-right">
-            Enter: خط جدید | Shift+Enter: ارسال پیام
-          </p>
         </form>
       </div>
     </div>
