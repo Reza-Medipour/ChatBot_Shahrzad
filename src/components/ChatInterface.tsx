@@ -29,6 +29,16 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.shiftKey && !isLoading) {
+      e.preventDefault();
+      if (inputValue.trim()) {
+        onSendMessage(inputValue.trim());
+        setInputValue('');
+      }
+    }
+  };
+
   const formatTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
@@ -143,15 +153,25 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
 
       <div className="border-t border-gray-200 bg-white shadow-lg">
         <form onSubmit={handleSubmit} className="w-full p-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
+          <div className="flex gap-2 items-end">
+            <textarea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="پیام خود را بنویسید..."
-              className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1e40af] transition-colors text-right text-sm"
+              onKeyDown={handleKeyDown}
+              placeholder="پیام خود را بنویسید... (Shift+Enter برای ارسال)"
+              className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1e40af] transition-colors text-right text-sm resize-none min-h-[40px] max-h-[120px]"
               disabled={isLoading}
               dir="rtl"
+              rows={1}
+              style={{
+                height: 'auto',
+                overflowY: inputValue.split('\n').length > 3 ? 'auto' : 'hidden'
+              }}
+              onInput={(e) => {
+                const target = e.target as HTMLTextAreaElement;
+                target.style.height = 'auto';
+                target.style.height = Math.min(target.scrollHeight, 120) + 'px';
+              }}
             />
             <button
               type="submit"
@@ -162,6 +182,9 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
               <span>ارسال</span>
             </button>
           </div>
+          <p className="text-xs text-gray-500 mt-2 text-right">
+            Enter: خط جدید | Shift+Enter: ارسال پیام
+          </p>
         </form>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import WelcomePage from './components/WelcomePage';
 import LoginPage from './components/LoginPage';
+import RegistrationPage from './components/RegistrationPage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import { supabase, ChatSession, Message } from './lib/supabase';
@@ -8,6 +9,8 @@ import { supabase, ChatSession, Message } from './lib/supabase';
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -65,7 +68,7 @@ function App() {
     setMessages(data || []);
   };
 
-  const handleLogin = async (phone: string) => {
+  const handlePhoneVerified = async (phone: string) => {
     try {
       const { data: existingUser, error: fetchError } = await supabase
         .from('users')
@@ -78,41 +81,69 @@ function App() {
         throw fetchError;
       }
 
-      let user = existingUser;
-
-      if (!user) {
-        const { data: newUser, error: insertError } = await supabase
-          .from('users')
-          .insert([{ phone_number: phone }])
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('Error creating user:', insertError);
-          throw insertError;
-        }
-
-        user = newUser;
-      } else {
+      if (existingUser && existingUser.is_registered) {
         await supabase
           .from('users')
           .update({ last_login: new Date().toISOString() })
-          .eq('id', user.id);
+          .eq('id', existingUser.id);
+
+        localStorage.setItem('userId', existingUser.id);
+        localStorage.setItem('phoneNumber', phone);
+
+        setUserId(existingUser.id);
+        setPhoneNumber(phone);
+        setShowLogin(false);
+        setShowWelcome(false);
+
+        await loadSessions(existingUser.id);
+      } else {
+        if (!existingUser) {
+          const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert([{ phone_number: phone, is_registered: false }])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error creating user:', insertError);
+            throw insertError;
+          }
+        }
+
+        setVerifiedPhoneNumber(phone);
+        setShowLogin(false);
+        setShowRegistration(true);
       }
-
-      localStorage.setItem('userId', user.id);
-      localStorage.setItem('phoneNumber', phone);
-
-      setUserId(user.id);
-      setPhoneNumber(phone);
-      setShowLogin(false);
-      setShowWelcome(false);
-
-      await loadSessions(user.id);
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Phone verification error:', error);
       throw error;
     }
+  };
+
+  const handleRegistrationComplete = async (newUserId: string) => {
+    if (!verifiedPhoneNumber) return;
+
+    await supabase
+      .from('users')
+      .update({ last_login: new Date().toISOString() })
+      .eq('id', newUserId);
+
+    localStorage.setItem('userId', newUserId);
+    localStorage.setItem('phoneNumber', verifiedPhoneNumber);
+
+    setUserId(newUserId);
+    setPhoneNumber(verifiedPhoneNumber);
+    setShowRegistration(false);
+    setShowWelcome(false);
+    setVerifiedPhoneNumber(null);
+
+    await loadSessions(newUserId);
+  };
+
+  const handleBackToLogin = () => {
+    setShowRegistration(false);
+    setShowLogin(true);
+    setVerifiedPhoneNumber(null);
   };
 
   const handleLogout = () => {
@@ -307,7 +338,21 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
         <div className="w-full max-w-md">
-          <LoginPage onLogin={handleLogin} />
+          <LoginPage onVerified={handlePhoneVerified} />
+        </div>
+      </div>
+    );
+  }
+
+  if (showRegistration && verifiedPhoneNumber) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <RegistrationPage
+            phoneNumber={verifiedPhoneNumber}
+            onComplete={handleRegistrationComplete}
+            onBack={handleBackToLogin}
+          />
         </div>
       </div>
     );
