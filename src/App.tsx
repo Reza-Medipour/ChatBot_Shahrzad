@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import WelcomePage from './components/WelcomePage';
 import LoginPage from './components/LoginPage';
 import RegistrationPage from './components/RegistrationPage';
+import UsernameLoginPage from './components/UsernameLoginPage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import { supabase, ChatSession, Message } from './lib/supabase';
@@ -10,6 +11,7 @@ function App() {
   const [showWelcome, setShowWelcome] = useState(true);
   const [showLogin, setShowLogin] = useState(false);
   const [showRegistration, setShowRegistration] = useState(false);
+  const [showUsernameLogin, setShowUsernameLogin] = useState(false);
   const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
@@ -146,6 +148,28 @@ function App() {
     setVerifiedPhoneNumber(null);
   };
 
+  const handleUsernameLogin = () => {
+    setShowLogin(false);
+    setShowUsernameLogin(true);
+  };
+
+  const handleUsernameLoginComplete = async (newUserId: string, phone: string) => {
+    localStorage.setItem('userId', newUserId);
+    localStorage.setItem('phoneNumber', phone);
+
+    setUserId(newUserId);
+    setPhoneNumber(phone);
+    setShowUsernameLogin(false);
+    setShowWelcome(false);
+
+    await loadSessions(newUserId);
+  };
+
+  const handleBackToPhoneLogin = () => {
+    setShowUsernameLogin(false);
+    setShowLogin(true);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('phoneNumber');
@@ -156,6 +180,7 @@ function App() {
     setMessages([]);
     setShowWelcome(true);
     setShowLogin(false);
+    setShowUsernameLogin(false);
     setIsSidebarOpen(false);
   };
 
@@ -338,7 +363,17 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
         <div className="w-full max-w-md">
-          <LoginPage onVerified={handlePhoneVerified} />
+          <LoginPage onVerified={handlePhoneVerified} onUsernameLogin={handleUsernameLogin} />
+        </div>
+      </div>
+    );
+  }
+
+  if (showUsernameLogin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <UsernameLoginPage onLogin={handleUsernameLoginComplete} onBack={handleBackToPhoneLogin} />
         </div>
       </div>
     );

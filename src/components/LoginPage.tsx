@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Phone, Key, ArrowLeft } from 'lucide-react';
+import { Phone, Key, ArrowLeft, User } from 'lucide-react';
 
 interface LoginPageProps {
   onVerified: (phoneNumber: string) => void;
+  onUsernameLogin: () => void;
 }
 
-export default function LoginPage({ onVerified }: LoginPageProps) {
+export default function LoginPage({ onVerified, onUsernameLogin }: LoginPageProps) {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
   const [isCodeSent, setIsCodeSent] = useState(false);
@@ -137,6 +138,16 @@ export default function LoginPage({ onVerified }: LoginPageProps) {
                     <ArrowLeft className="w-5 h-5" />
                   </>
                 )}
+              </button>
+
+              <button
+                type="button"
+                onClick={onUsernameLogin}
+                disabled={isLoading}
+                className="w-full mt-3 bg-white text-blue-700 py-3 rounded-xl font-bold text-base border-2 border-blue-300 hover:bg-blue-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <span>ورود با نام کاربری</span>
+                <User className="w-5 h-5" />
               </button>
             </form>
           ) : (
