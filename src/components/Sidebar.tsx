@@ -68,9 +68,9 @@ export default function Sidebar({
               onClick={onBackToWelcome}
             >
               <img
-                src="/logo.svg"
+                src="/logo-header.svg"
                 alt="شهرزاد"
-                className="h-12 w-auto"
+                className="h-12 w-12"
               />
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">چت بات شهرزاد</h1>

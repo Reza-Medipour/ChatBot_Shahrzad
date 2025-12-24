@@ -59,9 +59,9 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
             <div className="flex items-center gap-3 flex-1 justify-center">
               <div className="relative">
                 <img
-                  src="/logo.svg"
+                  src="/logo-header.svg"
                   alt="شهرزاد"
-                  className="h-10 w-auto"
+                  className="h-10 w-10"
                 />
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
               </div>
@@ -82,9 +82,9 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
             <div className="text-center py-8">
               <div className="bg-white rounded-2xl shadow-lg p-6 inline-block">
                 <img
-                  src="/logo.svg"
+                  src="/logo-header.svg"
                   alt="شهرزاد"
-                  className="h-16 w-auto mx-auto mb-3"
+                  className="h-16 w-16 mx-auto mb-3"
                 />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">
                   سلام! چطور می‌تونم کمکتون کنم؟
