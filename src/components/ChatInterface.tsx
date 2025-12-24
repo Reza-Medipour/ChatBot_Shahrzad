@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Menu } from 'lucide-react';
+import { Send, User, Menu } from 'lucide-react';
 import { Message } from '../lib/supabase';
 
 interface ChatInterfaceProps {
@@ -89,9 +89,6 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
                 <h3 className="text-lg font-bold text-gray-800 mb-2">
                   سلام! چطور می‌تونم کمکتون کنم؟
                 </h3>
-                <p className="text-sm text-gray-600">
-                  سوال خود را بپرسید و من در اسرع وقت پاسخ خواهم داد
-                </p>
               </div>
             </div>
           ) : (
@@ -127,9 +124,11 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
 
                 {!message.is_user && (
                   <div className="flex-shrink-0">
-                    <div className="bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-2 rounded-xl">
-                      <Bot className="w-4 h-4 text-white" />
-                    </div>
+                    <img
+                      src="/logo-1.svg"
+                      alt="شهرزاد"
+                      className="w-8 h-8"
+                    />
                   </div>
                 )}
               </div>
@@ -146,9 +145,11 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
                 </div>
               </div>
               <div className="flex-shrink-0">
-                <div className="bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-2 rounded-xl">
-                  <Bot className="w-4 h-4 text-white" />
-                </div>
+                <img
+                  src="/logo-1.svg"
+                  alt="شهرزاد"
+                  className="w-8 h-8"
+                />
               </div>
             </div>
           )}
