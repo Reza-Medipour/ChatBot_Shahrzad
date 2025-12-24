@@ -9,7 +9,7 @@ export default function WelcomePage({ onStartChat }: WelcomePageProps) {
     <div className="h-screen w-full bg-white flex items-center justify-center overflow-auto">
       <div className="w-full max-w-md px-4 py-6">
         <div className="text-center mb-6 animate-fade-in">
-          
+          {/* 
           <div className="flex justify-center mb-6">
             <img
               src="/logo-header.svg"
@@ -17,7 +17,8 @@ export default function WelcomePage({ onStartChat }: WelcomePageProps) {
               className="w-32 h-32 drop-shadow-xl"
             />
           </div>
-
+ */}
+          
           <div className="flex justify-center mb-6">
             <div className="bg-[#F5F8FF] rounded-3xl p-4 shadow-md">
               <img
