@@ -11,18 +11,18 @@ export default function WelcomePage({ onStartChat }: WelcomePageProps) {
         <div className="text-center mb-6 animate-fade-in">
           <div className="flex justify-center mb-6">
             <img
-              src="/tehran-skyline.png"
-              alt="Tehran Skyline"
+              src="/logo_bg.svg"
+              alt="شهرزاد"
               className="w-full max-w-[280px] h-auto drop-shadow-2xl"
             />
           </div>
 
           <h1 className="text-2xl font-bold text-white mb-3 drop-shadow-lg px-2">
-            به سیستم پشتیبانی خوش آمدید
+            به چت بات شهرزاد خوش آمدید
           </h1>
 
           <p className="text-sm text-white/90 mb-6 leading-relaxed px-2">
-            ما اینجا هستیم تا به شما کمک کنیم
+            دستیار هوشمند شما برای پاسخگویی
             <br />
             سوالات خود را بپرسید و پاسخ سریع دریافت کنید
           </p>
