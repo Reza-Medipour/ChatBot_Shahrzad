@@ -15,6 +15,7 @@ function App() {
   const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,10 +25,12 @@ function App() {
   useEffect(() => {
     const savedUserId = localStorage.getItem('userId');
     const savedPhoneNumber = localStorage.getItem('phoneNumber');
+    const savedUsername = localStorage.getItem('username');
 
-    if (savedUserId && savedPhoneNumber) {
+    if (savedUserId && (savedPhoneNumber || savedUsername)) {
       setUserId(savedUserId);
       setPhoneNumber(savedPhoneNumber);
+      setUsername(savedUsername);
       setShowWelcome(false);
       setShowLogin(false);
       loadSessions(savedUserId);
@@ -153,12 +156,14 @@ function App() {
     setShowUsernameLogin(true);
   };
 
-  const handleUsernameLoginComplete = async (newUserId: string, phone: string) => {
+  const handleUsernameLoginComplete = async (newUserId: string, phone: string, user: string) => {
     localStorage.setItem('userId', newUserId);
     localStorage.setItem('phoneNumber', phone);
+    localStorage.setItem('username', user);
 
     setUserId(newUserId);
     setPhoneNumber(phone);
+    setUsername(user);
     setShowUsernameLogin(false);
     setShowWelcome(false);
 
@@ -173,8 +178,10 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('phoneNumber');
+    localStorage.removeItem('username');
     setUserId(null);
     setPhoneNumber(null);
+    setUsername(null);
     setSessions([]);
     setCurrentSessionId(null);
     setMessages([]);
@@ -406,6 +413,7 @@ function App() {
             onBackToWelcome={handleBackToWelcome}
             onLogout={handleLogout}
             phoneNumber={phoneNumber || ''}
+            username={username || ''}
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
           />

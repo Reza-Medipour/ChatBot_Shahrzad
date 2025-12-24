@@ -1,14 +1,15 @@
 import { useState } from 'react';
-import { User, ArrowLeft } from 'lucide-react';
+import { User, Lock, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface UsernameLoginPageProps {
-  onLogin: (userId: string, phoneNumber: string) => void;
+  onLogin: (userId: string, phoneNumber: string, username: string) => void;
   onBack: () => void;
 }
 
 export default function UsernameLoginPage({ onLogin, onBack }: UsernameLoginPageProps) {
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,8 +17,8 @@ export default function UsernameLoginPage({ onLogin, onBack }: UsernameLoginPage
     e.preventDefault();
     setError('');
 
-    if (!username.trim()) {
-      setError('لطفاً نام کاربری را وارد کنید');
+    if (!username.trim() || !password.trim()) {
+      setError('لطفاً نام کاربری و رمز عبور را وارد کنید');
       return;
     }
 
@@ -37,6 +38,7 @@ export default function UsernameLoginPage({ onLogin, onBack }: UsernameLoginPage
           .from('users')
           .insert({
             username: username.trim(),
+            password: password,
             phone_number: '',
             is_registered: true,
             last_login: new Date().toISOString()
@@ -47,13 +49,19 @@ export default function UsernameLoginPage({ onLogin, onBack }: UsernameLoginPage
         if (insertError) throw insertError;
         user = newUser;
       } else {
+        if (user.password !== password) {
+          setError('رمز عبور اشتباه است');
+          setIsLoading(false);
+          return;
+        }
+
         await supabase
           .from('users')
           .update({ last_login: new Date().toISOString() })
           .eq('id', user.id);
       }
 
-      onLogin(user.id, user.phone_number || username.trim());
+      onLogin(user.id, user.phone_number || '', username.trim());
     } catch (err) {
       console.error('Login error:', err);
       setError('خطا در ورود. لطفاً دوباره تلاش کنید');
@@ -75,7 +83,7 @@ export default function UsernameLoginPage({ onLogin, onBack }: UsernameLoginPage
           </h1>
 
           <p className="text-sm text-blue-700 leading-relaxed">
-            نام کاربری خود را وارد کنید
+            نام کاربری و رمز عبور خود را وارد کنید
           </p>
         </div>
 
@@ -93,6 +101,24 @@ export default function UsernameLoginPage({ onLogin, onBack }: UsernameLoginPage
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full pr-10 pl-4 py-3 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right bg-blue-50/50 text-blue-900 placeholder-blue-400"
                   placeholder="نام کاربری"
+                  disabled={isLoading}
+                  dir="rtl"
+                />
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-blue-900 mb-2 text-right">
+                رمز عبور
+              </label>
+              <div className="relative">
+                <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-500 w-5 h-5" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pr-10 pl-4 py-3 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-right bg-blue-50/50 text-blue-900 placeholder-blue-400"
+                  placeholder="رمز عبور"
                   disabled={isLoading}
                   dir="rtl"
                 />

@@ -1,4 +1,4 @@
-import { Plus, MessageSquare, Trash2, X, LogOut, Phone } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, X, LogOut, Phone, User } from 'lucide-react';
 import { ChatSession } from '../lib/supabase';
 
 interface SidebarProps {
@@ -10,6 +10,7 @@ interface SidebarProps {
   onBackToWelcome: () => void;
   onLogout: () => void;
   phoneNumber: string;
+  username: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -23,6 +24,7 @@ export default function Sidebar({
   onBackToWelcome,
   onLogout,
   phoneNumber,
+  username,
   isOpen,
   onClose,
 }: SidebarProps) {
@@ -145,11 +147,20 @@ export default function Sidebar({
         <div className="p-4 border-t border-blue-200 space-y-3">
           <div className="bg-white/80 rounded-xl p-3 shadow-sm border border-blue-200">
             <div className="flex items-center gap-2 mb-3">
-              <Phone className="w-4 h-4 text-blue-600" />
-              <span className="text-sm text-gray-600">کاربر:</span>
+              {username ? (
+                <>
+                  <User className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm text-gray-600">نام کاربری:</span>
+                </>
+              ) : (
+                <>
+                  <Phone className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm text-gray-600">شماره تلفن:</span>
+                </>
+              )}
             </div>
-            <div className="text-gray-800 font-bold text-sm" dir="ltr">
-              {phoneNumber}
+            <div className="text-gray-800 font-bold text-sm" dir={username ? "rtl" : "ltr"}>
+              {username || phoneNumber}
             </div>
           </div>
 
