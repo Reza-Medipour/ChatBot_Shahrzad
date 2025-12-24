@@ -66,8 +66,6 @@
 //   );
 // }
 
-
-
 import { MessageCircle, Sparkles, Headphones, Clock, Users } from "lucide-react";
 
 interface WelcomePageProps {
@@ -76,80 +74,70 @@ interface WelcomePageProps {
 
 export default function WelcomePage({ onStartChat }: WelcomePageProps) {
   return (
-    <div className="min-h-screen w-full overflow-auto flex items-center justify-center bg-gradient-to-br from-[#EEF4FF] via-white to-[#F5F0FF]">
-      {/* Soft Blobs */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#2F7AF8]/20 blur-3xl" />
-        <div className="absolute -bottom-28 -right-24 h-80 w-80 rounded-full bg-[#8B5CF6]/20 blur-3xl" />
-      </div>
+    <div dir="rtl" className="min-h-screen w-full bg-[#F5F8FF] overflow-auto">
+      {/* Header (مثل صفحات شما: آبی + موج) */}
+      <div className="relative">
+        <div className="h-[260px] w-full bg-gradient-to-b from-[#1E63D6] to-[#2F7AF8] rounded-b-[34px]" />
 
-      <div className="relative w-full max-w-md px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-7">
-          <div className="flex justify-center mb-5">
-            <div className="rounded-3xl bg-white/70 backdrop-blur border border-white/60 shadow-[0_10px_30px_rgba(0,0,0,0.08)] p-4">
-              <img
-                src="/logo-header.svg"
-                alt="شهرزاد"
-                className="w-24 h-24 drop-shadow"
-              />
-            </div>
-          </div>
-
-          <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-[#2F7AF8] to-[#8B5CF6] bg-clip-text text-transparent">
-            شهرزاد
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            دستیار هوشمند شهر تو ✨
-          </p>
+        {/* Pattern / soft circles like your header */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-b-[34px]">
+          <div className="absolute -top-10 -left-16 h-48 w-48 rounded-full bg-white/10" />
+          <div className="absolute top-10 -right-20 h-56 w-56 rounded-full bg-white/10" />
+          <div className="absolute top-24 left-10 h-24 w-24 rounded-full bg-white/10" />
         </div>
 
-        {/* Gradient Border Wrapper */}
-        <div className="p-[1px] rounded-3xl bg-gradient-to-r from-[#2F7AF8]/40 via-[#8B5CF6]/35 to-[#2F7AF8]/40 shadow-[0_14px_40px_rgba(47,122,248,0.18)]">
-          <div className="rounded-3xl bg-white/75 backdrop-blur-xl border border-white/60 p-5">
-            {/* Features */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
-              <Feature
-                icon={<Headphones className="w-5 h-5" />}
-                title="پاسخ سریع"
-              />
-              <Feature
-                icon={<Clock className="w-5 h-5" />}
-                title="پشتیبانی ۲۴/۷"
-              />
-              <Feature
-                icon={<Users className="w-5 h-5" />}
-                title="تیم حرفه‌ای"
-              />
+        {/* Header content */}
+        <div className="absolute top-0 left-0 right-0 px-4 pt-10">
+          <div className="flex flex-col items-center text-center">
+            <div className="h-24 w-24 rounded-3xl bg-white/15 border border-white/25 flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.12)]">
+              <img src="/logo-header.svg" alt="شهرزاد" className="w-16 h-16" />
             </div>
 
-            {/* CTA */}
-            <button
-              onClick={onStartChat}
-              className="group w-full rounded-2xl py-3.5 px-6 font-bold text-white
-                         bg-gradient-to-r from-[#2F7AF8] via-[#4B8DFF] to-[#8B5CF6]
-                         shadow-[0_12px_30px_rgba(47,122,248,0.35)]
-                         hover:shadow-[0_16px_40px_rgba(139,92,246,0.35)]
-                         transition-all duration-200 active:scale-[0.98]
-                         flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-5 h-5 opacity-90 group-hover:rotate-6 transition-transform" />
-              شروع گفتگو
-              <MessageCircle className="w-5 h-5 opacity-90 group-hover:-rotate-6 transition-transform" />
-            </button>
+            <h1 className="mt-4 text-3xl font-extrabold text-white">
+              شهرزاد
+            </h1>
+            <p className="mt-1 text-sm text-white/85">
+              دستیار هوشمند شهر تو
+            </p>
+          </div>
+        </div>
+      </div>
 
-            {/* Helper text */}
-            <div className="mt-4 flex items-center justify-center gap-3 text-xs text-gray-600">
-              <span className="inline-flex items-center gap-2">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-                </span>
-                آنلاین
+      {/* Body card (مثل بدنه صفحات شما: سفید، گرد، سایه نرم) */}
+      <div className="-mt-12 px-4 pb-8">
+        <div className="mx-auto w-full max-w-md rounded-[28px] bg-white shadow-[0_18px_45px_rgba(17,24,39,0.10)] border border-[#EEF2FF] p-5">
+          {/* Feature tiles (مثل آیتم‌های خدمات) */}
+          <div className="grid grid-cols-3 gap-3 mb-5">
+            <Feature icon={<Headphones className="w-5 h-5" />} label="پاسخ سریع" />
+            <Feature icon={<Clock className="w-5 h-5" />} label="پشتیبانی ۲۴/۷" />
+            <Feature icon={<Users className="w-5 h-5" />} label="تیم حرفه‌ای" />
+          </div>
+
+          {/* CTA button (آبی یک‌دست مثل UI شما) */}
+          <button
+            onClick={onStartChat}
+            className="w-full rounded-2xl bg-[#2F7AF8] hover:bg-[#276BE3]
+                       text-white font-extrabold py-3.5
+                       shadow-[0_10px_22px_rgba(47,122,248,0.35)]
+                       active:scale-[0.98] transition-all duration-200
+                       flex items-center justify-center gap-2"
+          >
+            <Sparkles className="w-5 h-5 opacity-95" />
+            شروع گفتگو
+            <MessageCircle className="w-5 h-5 opacity-95" />
+          </button>
+
+          {/* Status row (مثل پایین صفحه شما) */}
+          <div className="mt-5 flex items-center justify-center gap-3 text-xs text-[#667085]">
+            <span className="inline-flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              <span className="text-gray-300">•</span>
-              <span>پاسخگویی سریع</span>
-            </div>
+              آنلاین
+            </span>
+            <span className="text-[#D0D5DD]">•</span>
+            <span>پاسخگویی سریع</span>
           </div>
         </div>
       </div>
@@ -157,17 +145,18 @@ export default function WelcomePage({ onStartChat }: WelcomePageProps) {
   );
 }
 
-function Feature({ icon, title }: { icon: React.ReactNode; title: string }) {
+function Feature({ icon, label }: { icon: React.ReactNode; label: string }) {
   return (
     <div
-      className="rounded-2xl bg-white/80 border border-white/60 p-3 text-center
-                 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+      className="rounded-2xl bg-white border border-[#EEF2FF]
+                 shadow-[0_8px_18px_rgba(17,24,39,0.06)]
+                 p-3 text-center transition-transform duration-200
+                 hover:-translate-y-0.5"
     >
-      <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-xl
-                      bg-gradient-to-br from-[#2F7AF8]/15 to-[#8B5CF6]/15 text-[#2F7AF8]">
+      <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-2xl bg-[#EEF4FF] text-[#2F7AF8]">
         {icon}
       </div>
-      <p className="text-xs font-semibold text-gray-700">{title}</p>
+      <p className="text-xs font-bold text-[#344054]">{label}</p>
     </div>
   );
 }
