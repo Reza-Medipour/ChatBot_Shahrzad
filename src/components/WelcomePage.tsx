@@ -21,7 +21,7 @@ export default function WelcomePage({ onStartChat }: WelcomePageProps) {
             شهرزاد
           </h1>
           <p className="text-lg text-gray-700 mb-6 px-2">
-            ، دستیار هوشمند شهر تو
+             دستیار هوشمند شهر تو
           </p>
         </div>
 
