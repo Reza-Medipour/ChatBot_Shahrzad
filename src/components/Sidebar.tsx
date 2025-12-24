@@ -67,12 +67,14 @@ export default function Sidebar({
               className="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity"
               onClick={onBackToWelcome}
             >
-              <div className="bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-3 rounded-xl shadow-md">
-                <MessageSquare className="w-6 h-6 text-white" />
-              </div>
+              <img
+                src="/logo.svg"
+                alt="شهرزاد"
+                className="h-12 w-auto"
+              />
               <div>
-                <h1 className="text-2xl font-bold text-gray-800">پشتیبانی</h1>
-                <p className="text-blue-600 text-sm">سیستم چت آنلاین</p>
+                <h1 className="text-2xl font-bold text-gray-800">چت بات شهرزاد</h1>
+                <p className="text-blue-600 text-sm">دستیار هوشمند</p>
               </div>
             </div>
             <button

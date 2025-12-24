@@ -58,13 +58,15 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
 
             <div className="flex items-center gap-3 flex-1 justify-center">
               <div className="relative">
-                <div className="bg-gradient-to-br from-[#1e40af] to-[#3b82f6] p-2 rounded-xl">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
+                <img
+                  src="/logo.svg"
+                  alt="شهرزاد"
+                  className="h-10 w-auto"
+                />
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
               </div>
               <div>
-                <h2 className="font-bold text-gray-800 text-sm">دستیار پشتیبانی</h2>
+                <h2 className="font-bold text-gray-800 text-sm">چت بات شهرزاد</h2>
                 <p className="text-xs text-gray-500">آنلاین</p>
               </div>
             </div>
@@ -79,12 +81,16 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
           {messages.length === 0 ? (
             <div className="text-center py-8">
               <div className="bg-white rounded-2xl shadow-lg p-6 inline-block">
-                <Bot className="w-12 h-12 text-[#1e40af] mx-auto mb-3" />
+                <img
+                  src="/logo.svg"
+                  alt="شهرزاد"
+                  className="h-16 w-auto mx-auto mb-3"
+                />
                 <h3 className="text-lg font-bold text-gray-800 mb-2">
                   سلام! چطور می‌تونم کمکتون کنم؟
                 </h3>
                 <p className="text-sm text-gray-600">
-                  سوال خود را بپرسید و ما در اسرع وقت پاسخ خواهیم داد
+                  سوال خود را بپرسید و من در اسرع وقت پاسخ خواهم داد
                 </p>
               </div>
             </div>
