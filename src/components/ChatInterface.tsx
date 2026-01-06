@@ -125,7 +125,7 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
                 {!message.is_user && (
                   <div className="flex-shrink-0">
                     <img
-                      src="/logo-1.svg"
+                      src="/logo-header.svg"
                       alt="شهرزاد"
                       className="w-8 h-8"
                     />
