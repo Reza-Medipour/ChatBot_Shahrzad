@@ -63,20 +63,16 @@ export default function Sidebar({
       `}>
         <div className="p-6 border-b border-blue-200">
           <div className="flex items-center justify-between mb-6">
-            <div
-              className="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity"
+            <button
               onClick={onBackToWelcome}
+              className="cursor-pointer hover:opacity-70 transition-opacity p-0 bg-none border-none"
             >
               <img
-                src="/logo-header.svg"
+                src="/logo copy copy copy.svg"
                 alt="شهرزاد"
-                className="h-12 w-12"
+                className="h-12 w-auto"
               />
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">چت بات شهرزاد</h1>
-                <p className="text-blue-600 text-sm">دستیار هوشمند</p>
-              </div>
-            </div>
+            </button>
             <button
               onClick={onClose}
               className="p-2 hover:bg-blue-100 rounded-lg transition-colors"

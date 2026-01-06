@@ -212,12 +212,14 @@ function App() {
   };
 
   const handleStartChat = async () => {
-    if (userId) {
-      await createNewSession();
-    } else {
+    if (!userId) {
       setShowWelcome(false);
       setShowLogin(true);
+      return;
     }
+
+    setShowWelcome(false);
+    await createNewSession();
   };
 
   const handleNewChat = async () => {
