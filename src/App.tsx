@@ -1,21 +1,11 @@
 import { useState, useEffect } from 'react';
 import WelcomePage from './components/WelcomePage';
-import LoginPage from './components/LoginPage';
-import RegistrationPage from './components/RegistrationPage';
-import UsernameLoginPage from './components/UsernameLoginPage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import { supabase, ChatSession, Message } from './lib/supabase';
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
-  const [showLogin, setShowLogin] = useState(false);
-  const [showRegistration, setShowRegistration] = useState(false);
-  const [showUsernameLogin, setShowUsernameLogin] = useState(false);
-  const [verifiedPhoneNumber, setVerifiedPhoneNumber] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -23,31 +13,19 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const savedUserId = localStorage.getItem('userId');
-    const savedPhoneNumber = localStorage.getItem('phoneNumber');
-    const savedUsername = localStorage.getItem('username');
-
-    if (savedUserId && (savedPhoneNumber || savedUsername)) {
-      setUserId(savedUserId);
-      setPhoneNumber(savedPhoneNumber);
-      setUsername(savedUsername);
-      setShowWelcome(false);
-      setShowLogin(false);
-      loadSessions(savedUserId);
-    }
+    loadSessions();
   }, []);
 
   useEffect(() => {
-    if (currentSessionId && userId) {
+    if (currentSessionId) {
       loadMessages(currentSessionId);
     }
-  }, [currentSessionId, userId]);
+  }, [currentSessionId]);
 
-  const loadSessions = async (userIdParam: string) => {
+  const loadSessions = async () => {
     const { data, error } = await supabase
       .from('chat_sessions')
       .select('*')
-      .eq('user_id', userIdParam)
       .order('updated_at', { ascending: false });
 
     if (error) {
@@ -73,130 +51,10 @@ function App() {
     setMessages(data || []);
   };
 
-  const handlePhoneVerified = async (phone: string) => {
-    try {
-      const { data: existingUser, error: fetchError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('phone_number', phone)
-        .maybeSingle();
-
-      if (fetchError) {
-        console.error('Error checking user:', fetchError);
-        throw fetchError;
-      }
-
-      if (existingUser && existingUser.is_registered) {
-        await supabase
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('id', existingUser.id);
-
-        localStorage.setItem('userId', existingUser.id);
-        localStorage.setItem('phoneNumber', phone);
-
-        setUserId(existingUser.id);
-        setPhoneNumber(phone);
-        setShowLogin(false);
-        setShowWelcome(false);
-
-        await loadSessions(existingUser.id);
-      } else {
-        if (!existingUser) {
-          const { data: newUser, error: insertError } = await supabase
-            .from('users')
-            .insert([{ phone_number: phone, is_registered: false }])
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error('Error creating user:', insertError);
-            throw insertError;
-          }
-        }
-
-        setVerifiedPhoneNumber(phone);
-        setShowLogin(false);
-        setShowRegistration(true);
-      }
-    } catch (error) {
-      console.error('Phone verification error:', error);
-      throw error;
-    }
-  };
-
-  const handleRegistrationComplete = async (newUserId: string) => {
-    if (!verifiedPhoneNumber) return;
-
-    await supabase
-      .from('users')
-      .update({ last_login: new Date().toISOString() })
-      .eq('id', newUserId);
-
-    localStorage.setItem('userId', newUserId);
-    localStorage.setItem('phoneNumber', verifiedPhoneNumber);
-
-    setUserId(newUserId);
-    setPhoneNumber(verifiedPhoneNumber);
-    setShowRegistration(false);
-    setShowWelcome(false);
-    setVerifiedPhoneNumber(null);
-
-    await loadSessions(newUserId);
-  };
-
-  const handleBackToLogin = () => {
-    setShowRegistration(false);
-    setShowLogin(true);
-    setVerifiedPhoneNumber(null);
-  };
-
-  const handleUsernameLogin = () => {
-    setShowLogin(false);
-    setShowUsernameLogin(true);
-  };
-
-  const handleUsernameLoginComplete = async (newUserId: string, phone: string, user: string) => {
-    localStorage.setItem('userId', newUserId);
-    localStorage.setItem('phoneNumber', phone);
-    localStorage.setItem('username', user);
-
-    setUserId(newUserId);
-    setPhoneNumber(phone);
-    setUsername(user);
-    setShowUsernameLogin(false);
-    setShowWelcome(false);
-
-    await loadSessions(newUserId);
-  };
-
-  const handleBackToPhoneLogin = () => {
-    setShowUsernameLogin(false);
-    setShowLogin(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('userId');
-    localStorage.removeItem('phoneNumber');
-    localStorage.removeItem('username');
-    setUserId(null);
-    setPhoneNumber(null);
-    setUsername(null);
-    setSessions([]);
-    setCurrentSessionId(null);
-    setMessages([]);
-    setShowWelcome(true);
-    setShowLogin(false);
-    setShowUsernameLogin(false);
-    setIsSidebarOpen(false);
-  };
-
   const createNewSession = async () => {
-    if (!userId) return;
-
     const { data, error } = await supabase
       .from('chat_sessions')
-      .insert([{ title: 'چت جدید', user_id: userId }])
+      .insert([{ title: 'چت جدید' }])
       .select()
       .single();
 
@@ -212,12 +70,6 @@ function App() {
   };
 
   const handleStartChat = async () => {
-    if (!userId) {
-      setShowWelcome(false);
-      setShowLogin(true);
-      return;
-    }
-
     setShowWelcome(false);
     await createNewSession();
   };
@@ -289,7 +141,7 @@ function App() {
   };
 
   const handleSendMessage = async (content: string) => {
-    if (!currentSessionId || !userId) return;
+    if (!currentSessionId) return;
 
     setIsLoading(true);
 
@@ -331,7 +183,7 @@ function App() {
         .eq('id', currentSessionId);
     }
 
-    await loadSessions(userId);
+    await loadSessions();
 
     setTimeout(async () => {
       const botResponse = await generateBotResponse(content, currentSessionId);
@@ -368,40 +220,6 @@ function App() {
     );
   }
 
-  if (showLogin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <LoginPage onVerified={handlePhoneVerified} onUsernameLogin={handleUsernameLogin} />
-        </div>
-      </div>
-    );
-  }
-
-  if (showUsernameLogin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <UsernameLoginPage onLogin={handleUsernameLoginComplete} onBack={handleBackToPhoneLogin} />
-        </div>
-      </div>
-    );
-  }
-
-  if (showRegistration && verifiedPhoneNumber) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-        <div className="w-full max-w-md">
-          <RegistrationPage
-            phoneNumber={verifiedPhoneNumber}
-            onComplete={handleRegistrationComplete}
-            onBack={handleBackToLogin}
-          />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
       <div className="w-full max-w-md h-screen shadow-2xl relative">
@@ -413,9 +231,6 @@ function App() {
             onNewChat={handleNewChat}
             onDeleteSession={handleDeleteSession}
             onBackToWelcome={handleBackToWelcome}
-            onLogout={handleLogout}
-            phoneNumber={phoneNumber || ''}
-            username={username || ''}
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
           />

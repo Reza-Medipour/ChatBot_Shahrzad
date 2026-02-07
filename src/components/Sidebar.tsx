@@ -1,4 +1,4 @@
-import { Plus, MessageSquare, Trash2, X, LogOut, Phone, User } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, X } from 'lucide-react';
 import { ChatSession } from '../lib/supabase';
 
 interface SidebarProps {
@@ -8,9 +8,6 @@ interface SidebarProps {
   onNewChat: () => void;
   onDeleteSession: (sessionId: string) => void;
   onBackToWelcome: () => void;
-  onLogout: () => void;
-  phoneNumber: string;
-  username: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -22,9 +19,6 @@ export default function Sidebar({
   onNewChat,
   onDeleteSession,
   onBackToWelcome,
-  onLogout,
-  phoneNumber,
-  username,
   isOpen,
   onClose,
 }: SidebarProps) {
@@ -142,38 +136,6 @@ export default function Sidebar({
           )}
         </div>
 
-        <div className="p-4 border-t border-blue-200 space-y-3">
-          <div className="bg-white/80 rounded-xl p-3 shadow-sm border border-blue-200">
-            <div className="flex items-center gap-2 mb-3">
-              {username ? (
-                <>
-                  <User className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-gray-600">نام کاربری:</span>
-                </>
-              ) : (
-                <>
-                  <Phone className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm text-gray-600">شماره تلفن:</span>
-                </>
-              )}
-            </div>
-            <div className="text-gray-800 font-bold text-sm" dir={username ? "rtl" : "ltr"}>
-              {username || phoneNumber}
-            </div>
-          </div>
-
-          <button
-            onClick={() => {
-              if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
-                onLogout();
-              }
-            }}
-            className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 px-4 rounded-xl border-2 border-red-300 hover:border-red-400 transition-all duration-200 flex items-center justify-center gap-2"
-          >
-            <LogOut className="w-5 h-5" />
-            خروج از حساب
-          </button>
-        </div>
       </div>
     </>
   );
