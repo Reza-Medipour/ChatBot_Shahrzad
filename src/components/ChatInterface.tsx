@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Send, User, Menu } from 'lucide-react';
-import { Message } from '../lib/supabase';
+import { Message } from '../lib/api';
 
 interface ChatInterfaceProps {
   messages: Message[];

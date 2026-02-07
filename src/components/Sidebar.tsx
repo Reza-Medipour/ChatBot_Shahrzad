@@ -1,5 +1,5 @@
-import { Plus, MessageSquare, Trash2, X } from 'lucide-react';
-import { ChatSession } from '../lib/supabase';
+import { Plus, MessageSquare, Trash2, X, LogOut } from 'lucide-react';
+import { ChatSession } from '../lib/api';
 
 interface SidebarProps {
   sessions: ChatSession[];
@@ -8,6 +8,7 @@ interface SidebarProps {
   onNewChat: () => void;
   onDeleteSession: (sessionId: string) => void;
   onBackToWelcome: () => void;
+  onLogout: () => void;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -19,6 +20,7 @@ export default function Sidebar({
   onNewChat,
   onDeleteSession,
   onBackToWelcome,
+  onLogout,
   isOpen,
   onClose,
 }: SidebarProps) {
@@ -134,6 +136,19 @@ export default function Sidebar({
               </div>
             ))
           )}
+        </div>
+
+        <div className="p-4 border-t border-blue-200">
+          <button
+            onClick={() => {
+              onLogout();
+              onClose();
+            }}
+            className="w-full bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <LogOut className="w-4 h-4" />
+            خروج از حساب
+          </button>
         </div>
 
       </div>

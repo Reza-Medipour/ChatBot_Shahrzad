@@ -2,19 +2,41 @@ import { useState, useEffect } from 'react';
 import WelcomePage from './components/WelcomePage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
-import { supabase, ChatSession, Message } from './lib/supabase';
+import LoginPage from './components/LoginPage';
+import { apiClient, ChatSession, Message, User } from './lib/api';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showWelcome, setShowWelcome] = useState(true);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    loadSessions();
+    checkAuth();
   }, []);
+
+  const checkAuth = async () => {
+    const token = apiClient.getToken();
+    if (token) {
+      const { data, error } = await apiClient.getCurrentUser();
+      if (data && !error) {
+        setCurrentUser(data);
+        setIsAuthenticated(true);
+        loadSessions();
+      } else {
+        apiClient.setToken(null);
+        setIsAuthenticated(false);
+      }
+    } else {
+      setIsAuthenticated(false);
+    }
+    setAuthLoading(false);
+  };
 
   useEffect(() => {
     if (currentSessionId) {
@@ -23,10 +45,7 @@ function App() {
   }, [currentSessionId]);
 
   const loadSessions = async () => {
-    const { data, error } = await supabase
-      .from('chat_sessions')
-      .select('*')
-      .order('updated_at', { ascending: false });
+    const { data, error } = await apiClient.getConversations();
 
     if (error) {
       console.error('Error loading sessions:', error);
@@ -37,11 +56,7 @@ function App() {
   };
 
   const loadMessages = async (sessionId: string) => {
-    const { data, error } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('session_id', sessionId)
-      .order('created_at', { ascending: true });
+    const { data, error } = await apiClient.getMessages(sessionId);
 
     if (error) {
       console.error('Error loading messages:', error);
@@ -52,21 +67,19 @@ function App() {
   };
 
   const createNewSession = async () => {
-    const { data, error } = await supabase
-      .from('chat_sessions')
-      .insert([{ title: 'چت جدید' }])
-      .select()
-      .single();
+    const { data, error } = await apiClient.createConversation('چت جدید');
 
     if (error) {
       console.error('Error creating session:', error);
       return;
     }
 
-    setSessions((prev) => [data, ...prev]);
-    setCurrentSessionId(data.id);
-    setMessages([]);
-    setShowWelcome(false);
+    if (data) {
+      setSessions((prev) => [data, ...prev]);
+      setCurrentSessionId(data.id);
+      setMessages([]);
+      setShowWelcome(false);
+    }
   };
 
   const handleStartChat = async () => {
@@ -91,10 +104,7 @@ function App() {
   };
 
   const handleDeleteSession = async (sessionId: string) => {
-    const { error } = await supabase
-      .from('chat_sessions')
-      .delete()
-      .eq('id', sessionId);
+    const { error } = await apiClient.deleteConversation(sessionId);
 
     if (error) {
       console.error('Error deleting session:', error);
@@ -113,31 +123,14 @@ function App() {
   };
 
   const generateBotResponse = async (userMessage: string, sessionId: string): Promise<string> => {
-    try {
-      const apiUrl = "/chat";
+    const { data, error } = await apiClient.chat(sessionId, userMessage);
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          session_id: sessionId,
-          message: userMessage,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to get response from chat API');
-      }
-
-      const data = await response.json();
-      return data.response || data.message || 'متاسفانه در حال حاضر قادر به پاسخگویی نیستم. لطفا دوباره تلاش کنید.';
-    } catch (error) {
+    if (error || !data) {
       console.error('Error calling chat API:', error);
       return 'متاسفانه در ارتباط با سرور مشکلی پیش آمد. لطفا دوباره تلاش کنید.';
     }
+
+    return data.response || 'متاسفانه در حال حاضر قادر به پاسخگویی نیستم. لطفا دوباره تلاش کنید.';
   };
 
   const handleSendMessage = async (content: string) => {
@@ -145,70 +138,78 @@ function App() {
 
     setIsLoading(true);
 
-    const { data: userMessage, error: userError } = await supabase
-      .from('messages')
-      .insert([
-        {
-          session_id: currentSessionId,
-          content,
-          is_user: true,
-        },
-      ])
-      .select()
-      .single();
+    // Optimistically add user message to UI
+    const tempUserMessage: Message = {
+      id: 'temp-' + Date.now(),
+      session_id: currentSessionId,
+      content,
+      is_user: true,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, tempUserMessage]);
 
-    if (userError) {
-      console.error('Error sending message:', userError);
-      setIsLoading(false);
-      return;
-    }
-
-    setMessages((prev) => [...prev, userMessage]);
-
+    // Update session title if first message
     const firstMessage = messages.length === 0;
     if (firstMessage) {
       const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
-      await supabase
-        .from('chat_sessions')
-        .update({ title, updated_at: new Date().toISOString() })
-        .eq('id', currentSessionId);
-
       setSessions((prev) =>
         prev.map((s) => (s.id === currentSessionId ? { ...s, title } : s))
       );
-    } else {
-      await supabase
-        .from('chat_sessions')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', currentSessionId);
     }
 
+    // Call chat API which handles both saving user message and generating bot response
+    const botResponseText = await generateBotResponse(content, currentSessionId);
+
+    // Add bot message to UI
+    const tempBotMessage: Message = {
+      id: 'temp-bot-' + Date.now(),
+      session_id: currentSessionId,
+      content: botResponseText,
+      is_user: false,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, tempBotMessage]);
+
+    // Reload messages to get actual IDs from server
+    await loadMessages(currentSessionId);
     await loadSessions();
 
-    setTimeout(async () => {
-      const botResponse = await generateBotResponse(content, currentSessionId);
-
-      const { data: botMessage, error: botError } = await supabase
-        .from('messages')
-        .insert([
-          {
-            session_id: currentSessionId,
-            content: botResponse,
-            is_user: false,
-          },
-        ])
-        .select()
-        .single();
-
-      if (botError) {
-        console.error('Error sending bot message:', botError);
-      } else {
-        setMessages((prev) => [...prev, botMessage]);
-      }
-
-      setIsLoading(false);
-    }, 500);
+    setIsLoading(false);
   };
+
+  const handleLogin = async (username: string, password: string) => {
+    const { data, error } = await apiClient.login(username, password);
+    if (data && !error) {
+      apiClient.setToken(data.access_token);
+      await checkAuth();
+      return true;
+    }
+    return false;
+  };
+
+  const handleLogout = () => {
+    apiClient.setToken(null);
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setSessions([]);
+    setMessages([]);
+    setShowWelcome(true);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">در حال بارگذاری...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
   if (showWelcome) {
     return (
@@ -231,6 +232,7 @@ function App() {
             onNewChat={handleNewChat}
             onDeleteSession={handleDeleteSession}
             onBackToWelcome={handleBackToWelcome}
+            onLogout={handleLogout}
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
           />

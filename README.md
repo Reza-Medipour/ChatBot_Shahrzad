@@ -1,250 +1,270 @@
-# سیستم چت پشتیبانی شهرزاد
+# چت بات شهرزاد
 
-وب اپلیکیشن چت پشتیبانی با طراحی **Mobile-Only** که به API چت خارجی متصل است.
+یک سیستم چت بات حرفه‌ای با معماری جدا شده Frontend و Backend، دیتابیس PostgreSQL لوکال، و قابلیت دیپلوی با Docker.
 
-## ویژگی‌ها
+## 🏗️ معماری پروژه
 
-- 📱 **طراحی فقط برای موبایل** - حداکثر عرض 448px
-- 🎨 **بک‌گراند آبی کم‌رنگ** - اطراف صفحه موبایل
-- 💬 چت آنلاین با ربات هوشمند
-- 🌟 رنگ‌بندی زیبا با تم آبی تیره
-- 📂 مدیریت جلسات چت متعدد
-- 🔄 ذخیره خودکار تاریخچه گفتگوها
-- 🌐 اتصال به API خارجی (با حل مشکل CORS)
-- 🎯 سایدبار drawer برای دسترسی به تاریخچه
+این پروژه شامل سه سرویس اصلی است:
 
-## پیش‌نیازها
-
-- Node.js 18 یا بالاتر
-- npm یا yarn
-- حساب Supabase
-
-## نصب و راه‌اندازی
-
-### 1. نصب وابستگی‌ها
-
-```bash
-npm install
+```
+┌─────────────────────────────────────────────────────────┐
+│                     Docker Compose                       │
+├──────────────┬──────────────────┬──────────────────────┤
+│   Frontend   │     Backend      │     Database         │
+│   (React)    │    (FastAPI)     │   (PostgreSQL)       │
+│   Port 80    │    Port 8000     │   Port 5432          │
+│   (Nginx)    │                  │   (Internal)         │
+└──────────────┴──────────────────┴──────────────────────┘
 ```
 
-### 2. تنظیمات محیطی
+### Frontend
+- **Framework**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS
+- **Server**: Nginx (Production)
+- **Features**:
+  - رابط کاربری مدرن و ریسپانسیو
+  - مدیریت session و authentication
+  - ارتباط با Backend از طریق REST API
 
-فایل `.env` را با اطلاعات خود پر کنید:
+### Backend
+- **Framework**: FastAPI (Python)
+- **Database ORM**: SQLAlchemy
+- **Authentication**: JWT
+- **Features**:
+  - API endpoints برای authentication و chat
+  - ارتباط با دیتابیس PostgreSQL
+  - امکان اتصال به سرویس LLM خارجی
 
-```env
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_CHAT_API_URL=http://103.75.196.71:8020/chat
-```
+### Database
+- **Type**: PostgreSQL 15
+- **Deployment**: Docker container با data persistence
+- **Models**: Users, ChatSessions, Messages
 
-### 3. اجرای محلی
-
-```bash
-npm run dev
-```
-
-اپلیکیشن در `http://localhost:5173` در دسترس خواهد بود.
-
-### 4. ساخت برای Production
-
-```bash
-npm run build
-```
-
-## استقرار با Docker
+## 🚀 نصب و راه‌اندازی
 
 ### پیش‌نیازها
+- Docker & Docker Compose
+- Git
 
-مطمئن شوید که API Backend شما روی پورت 8020 در حال اجرا است:
+### راه‌اندازی سریع
+
 ```bash
-# بررسی وضعیت API
-curl http://172.17.0.1:8020/chat
+# 1. کلون پروژه
+git clone <repository-url>
+cd project
+
+# 2. راه‌اندازی با Docker Compose
+docker-compose up -d --build
+
+# 3. ایجاد کاربر admin برای تست
+docker-compose exec backend python create_admin.py
 ```
 
-### ساخت و اجرای کانتینر
+پس از راه‌اندازی:
+- **Frontend**: http://localhost
+- **Backend API**: http://localhost:8000
+- **API Documentation**: http://localhost:8000/docs
+
+### ورود به سیستم
+
+برای ورود اولیه از اطلاعات زیر استفاده کنید:
+- **Username**: admin
+- **Password**: admin123
+
+## 📋 دستورات مفید
 
 ```bash
-# توقف کانتینر قبلی (اگر وجود دارد)
-docker-compose down
-
-# ساخت مجدد ایمیج
-docker-compose build --no-cache
-
-# اجرای کانتینر
-docker-compose up -d
+# مشاهده وضعیت سرویس‌ها
+docker-compose ps
 
 # مشاهده لاگ‌ها
 docker-compose logs -f
+
+# توقف سرویس‌ها
+docker-compose down
+
+# Rebuild پروژه
+docker-compose up -d --build
+
+# Restart یک سرویس خاص
+docker-compose restart backend
+
+# دسترسی به shell backend
+docker-compose exec backend bash
+
+# دسترسی به دیتابیس
+docker-compose exec database psql -U shahrzad -d shahrzad_db
+
+# Backup دیتابیس
+docker-compose exec database pg_dump -U shahrzad shahrzad_db > backup.sql
+
+# بازگردانی backup
+docker-compose exec -T database psql -U shahrzad shahrzad_db < backup.sql
 ```
 
-### دسترسی به اپلیکیشن
-
-پس از استقرار، اپلیکیشن در آدرس زیر در دسترس است:
+## 📁 ساختار پروژه
 
 ```
-http://103.75.196.71:8082
+project/
+├── backend/                 # FastAPI Backend
+│   ├── app/
+│   │   ├── main.py         # FastAPI application
+│   │   ├── database.py     # Database connection
+│   │   ├── models.py       # SQLAlchemy models
+│   │   ├── schemas.py      # Pydantic schemas
+│   │   ├── auth.py         # JWT authentication
+│   │   ├── config.py       # Settings
+│   │   └── routes/         # API endpoints
+│   │       ├── auth.py     # Authentication routes
+│   │       ├── chat.py     # Chat routes
+│   │       └── conversations.py
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── create_admin.py     # Admin user creation script
+├── src/                    # React Frontend
+│   ├── components/
+│   │   ├── ChatInterface.tsx
+│   │   ├── LoginPage.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── WelcomePage.tsx
+│   ├── lib/
+│   │   └── api.ts          # API client
+│   └── App.tsx
+├── Dockerfile              # Frontend Dockerfile
+├── nginx.conf              # Nginx configuration
+├── docker-compose.yml      # Docker orchestration
+└── .env                    # Environment variables
 ```
 
-### عیب‌یابی
+## 🔌 API Endpoints
 
-اگر مشکل CORS دارید:
+### Authentication
+- `POST /api/auth/register` - ثبت‌نام کاربر جدید
+- `POST /api/auth/login` - ورود کاربر
+- `GET /api/auth/me` - اطلاعات کاربر جاری
 
-1. بررسی کنید Nginx به درستی راه‌اندازی شده است:
+### Conversations
+- `GET /api/conversations` - دریافت لیست گفتگوها
+- `POST /api/conversations` - ایجاد گفتگوی جدید
+- `DELETE /api/conversations/{id}` - حذف گفتگو
+- `GET /api/conversations/{id}/messages` - دریافت پیام‌های یک گفتگو
+- `POST /api/conversations/{id}/messages` - ارسال پیام جدید
+
+### Chat
+- `POST /api/chat` - ارسال پیام و دریافت پاسخ از bot
+
+مستندات کامل API در آدرس http://localhost:8000/docs در دسترس است.
+
+## 🔧 تنظیمات
+
+### Backend Environment Variables
+فایل: `backend/.env`
+```env
+DATABASE_URL=postgresql://shahrzad:shahrzad_password@database:5432/shahrzad_db
+SECRET_KEY=your-secret-key-change-in-production
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+
+# Optional: External LLM API
+LLM_API_URL=
+LLM_API_KEY=
+```
+
+### Frontend Environment Variables
+فایل: `.env`
+```env
+VITE_API_URL=http://localhost:8000/api
+```
+
+## 🔒 امنیت
+
+- ✅ Authentication با JWT tokens
+- ✅ Password hashing با bcrypt
+- ✅ CORS configuration
+- ✅ جداسازی کامل frontend و backend
+- ✅ Database connection pooling
+- ✅ Environment variables برای sensitive data
+
+**نکته مهم**: در production حتماً SECRET_KEY را تغییر دهید!
+
+## 🌟 ویژگی‌ها
+
+- 📱 رابط کاربری مدرن و mobile-friendly
+- 💬 سیستم چت real-time
+- 👤 مدیریت کاربران با authentication
+- 📂 مدیریت conversations متعدد
+- 🔐 امنیت در سطح enterprise
+- 🐳 Docker-ready برای deployment آسان
+- 📊 API documentation خودکار با Swagger
+- 🔄 Data persistence با PostgreSQL
+- 🚀 عملکرد بالا با FastAPI async
+
+## 🛠️ Development
+
+### Frontend Development
 ```bash
-docker exec -it <container-name> nginx -t
-```
+# نصب dependencies
+npm install
 
-2. بررسی لاگ‌های Nginx:
-```bash
-docker logs <container-name>
-```
-
-3. تست proxy:
-```bash
-curl http://103.75.196.71:8082/chat -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"session_id":"test","message":"سلام"}'
-```
-
-## ساختار پروژه
-
-```
-src/
-├── components/
-│   ├── WelcomePage.tsx      # صفحه خوشامدگویی
-│   ├── ChatInterface.tsx    # محیط چت
-│   └── Sidebar.tsx          # سایدبار مدیریت جلسات
-├── lib/
-│   └── supabase.ts          # کلاینت Supabase
-├── App.tsx                  # کامپوننت اصلی
-└── main.tsx                 # نقطه ورود
-```
-
-## API چت
-
-اپلیکیشن به API خارجی متصل است:
-
-**Endpoint Backend:** `http://172.17.0.1:8020/chat`
-
-**Method:** `POST`
-
-### حل مشکل CORS
-
-برای جلوگیری از خطای CORS، از Nginx Proxy استفاده شده است:
-
-- **Frontend Request:** `/chat` (relative path)
-- **Nginx Proxy:** `http://172.17.0.1:8020/chat`
-
-این روش باعث می‌شود درخواست‌ها از همان domain ارسال شوند و مشکل CORS حل شود.
-
-**Request Body:**
-```json
-{
-  "session_id": "string",
-  "message": "string"
-}
-```
-
-**Response:**
-```json
-{
-  "response": "string"
-}
-```
-
-## دیتابیس
-
-### جداول
-
-- `chat_sessions`: ذخیره جلسات چت
-- `messages`: ذخیره پیام‌های کاربر و ربات
-
-### RLS (Row Level Security)
-
-- ✅ **احراز هویت با شماره تلفن** - هر کاربر حساب جداگانه دارد
-- ✅ **جداسازی کاربران** - هر کاربر فقط داده‌های خود را می‌بیند
-- ✅ **امنیت در سطح دیتابیس** - RLS policies بر اساس user_id
-- 📖 برای جزئیات بیشتر، فایل [AUTH-SYSTEM.md](./AUTH-SYSTEM.md) را ببینید
-
-## طراحی Mobile-First
-
-این اپلیکیشن **فقط برای نمایش در ابعاد موبایل** طراحی شده است:
-
-- **عرض ماکزیمم:** 448px (در وسط صفحه)
-- **بک‌گراند:** گرادیانت آبی کم‌رنگ در اطراف
-- **محتوا:** در یک frame موبایل با shadow
-
-برای اطلاعات بیشتر، فایل [MOBILE-DESIGN.md](./MOBILE-DESIGN.md) را مطالعه کنید.
-
-## استفاده از اپلیکیشن
-
-### جریان ورود و استفاده
-
-1. **صفحه خوشامدگویی**
-   - عکس افق تهران
-   - دکمه "شروع گفتگو" برای ورود
-
-2. **صفحه لاگین**
-   - وارد کردن شماره تلفن (11 رقمی)
-   - مثال: 09123456789
-   - ذخیره در دیتابیس
-
-3. **صفحه چت**
-   - بعد از لاگین، مستقیم به چت منتقل می‌شوید
-   - پیام کاربر در راست (آبی)
-   - پاسخ ربات در چپ (سفید)
-
-4. **منوی سایدبار**
-   - کلیک روی آیکون منو (☰)
-   - نمایش شماره تلفن
-   - لیست تاریخچه چت‌ها
-   - دکمه "خروج از حساب"
-
-5. **خروج (Logout)**
-   - کلیک روی "خروج از حساب"
-   - بازگشت به صفحه خوشامدگویی
-   - برای ورود مجدد باید دوباره شماره وارد شود
-
-### ویژگی‌های امنیتی
-
-- ✅ هر کاربر فقط چت‌های خود را می‌بیند
-- ✅ جداسازی کامل داده‌ها بر اساس شماره تلفن
-- ✅ Auto-login بعد از refresh (با localStorage)
-- ✅ امنیت در سطح دیتابیس با RLS
-
-## دستورات مفید
-
-```bash
-# اجرای محیط توسعه
+# اجرای dev server
 npm run dev
 
-# ساخت برای production
+# Build production
 npm run build
 
-# پیش‌نمایش build
-npm run preview
-
-# بررسی کد
-npm run lint
-
-# بررسی تایپ‌ها
+# Type checking
 npm run typecheck
+
+# Linting
+npm run lint
 ```
 
-## تکنولوژی‌ها
+### Backend Development
+```bash
+cd backend
 
-- React 18
-- TypeScript
-- Vite
-- Tailwind CSS
-- Supabase
-- Lucide Icons
-- Docker & Nginx
+# ایجاد virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+# یا
+venv\Scripts\activate  # Windows
 
-## توسعه‌دهنده
+# نصب dependencies
+pip install -r requirements.txt
 
-این پروژه برای سیستم چت پشتیبانی شهرزاد توسعه داده شده است.
+# اجرای dev server
+uvicorn app.main:app --reload
+```
 
-## مجوز
+## 📖 مستندات بیشتر
+
+- [راهنمای کامل دیپلوی](./DEPLOYMENT-GUIDE.md)
+- [مستندات API](http://localhost:8000/docs) (بعد از راه‌اندازی)
+
+## 🐛 عیب‌یابی
+
+### Backend به دیتابیس متصل نمی‌شود
+```bash
+docker-compose logs database
+docker-compose logs backend
+```
+
+### Frontend به Backend متصل نمی‌شود
+- بررسی کنید که backend در حال اجراست
+- لاگ‌های nginx را چک کنید
+- مطمئن شوید network بین services برقرار است
+
+### Database migration issues
+جداول به صورت خودکار توسط SQLAlchemy ایجاد می‌شوند. اگر مشکلی وجود دارد:
+```bash
+docker-compose down -v  # حذف volumes
+docker-compose up -d --build  # rebuild و start مجدد
+```
+
+## 📄 License
 
 این پروژه تحت مجوز خصوصی است.
+
+## 👥 توسعه‌دهندگان
+
+توسعه داده شده برای سیستم چت بات شهرزاد.
