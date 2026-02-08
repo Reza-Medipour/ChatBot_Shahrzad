@@ -21,16 +21,26 @@ async def generate_bot_response(user_message: str, session_id: str) -> str:
     if settings.LLM_API_URL:
         try:
             async with httpx.AsyncClient(timeout=30.0) as client:
+                # Prepare headers
+                headers = {
+                    "accept": "application/json",
+                    "Content-Type": "application/json"
+                }
+
+                # Add Authorization header only if API key is provided
+                if settings.LLM_API_KEY:
+                    headers["Authorization"] = f"Bearer {settings.LLM_API_KEY}"
+
+                # Call external LLM API
                 response = await client.post(
                     settings.LLM_API_URL,
                     json={
-                        "message": user_message,
-                        "session_id": session_id
+                        "session_id": session_id,
+                        "message": user_message
                     },
-                    headers={
-                        "Authorization": f"Bearer {settings.LLM_API_KEY}" if settings.LLM_API_KEY else ""
-                    }
+                    headers=headers
                 )
+
                 if response.status_code == 200:
                     data = response.json()
                     return data.get("response", "متاسفانه در حال حاضر قادر به پاسخگویی نیستم.")
