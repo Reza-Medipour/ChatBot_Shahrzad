@@ -41,18 +41,40 @@
 
 ## 🚀 نصب و راه‌اندازی
 
+### 🎯 شروع سریع
+
+**اگر می‌خواهید سریع شروع کنید:**
+
+➡️ **[START-HERE.md](./START-HERE.md)** ← از اینجا شروع کنید!
+
+یا اگر می‌خواهید بدانید از کدام راهنما استفاده کنید:
+
+➡️ **[DEPLOYMENT-INDEX.md](./DEPLOYMENT-INDEX.md)** ← راهنمای انتخاب مستندات
+
+---
+
 ### پیش‌نیازها
 - Docker & Docker Compose
 - Git
 
-### راه‌اندازی سریع
+### راه‌اندازی سریع با اسکریپت خودکار
 
 ```bash
 # 1. کلون پروژه
-git clone <repository-url>
-cd project
+git clone <repository-url> shahrzad-chatbot
+cd shahrzad-chatbot
 
-# 2. راه‌اندازی با Docker Compose
+# 2. راه‌اندازی با اسکریپت مدیریتی
+./deploy.sh
+```
+
+یا به صورت دستی:
+
+```bash
+# تنظیم امنیتی (مهم!)
+openssl rand -hex 32  # کلید تولید شده را در docker-compose.yml قرار دهید
+
+# راه‌اندازی با Docker Compose
 docker-compose up -d --build
 ```
 
@@ -60,6 +82,17 @@ docker-compose up -d --build
 - **Frontend**: http://localhost
 - **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/docs
+
+### 📚 راهنماهای Deployment
+
+| راهنما | کاربرد | زمان مطالعه |
+|--------|---------|-------------|
+| **[START-HERE.md](./START-HERE.md)** | شروع سریع (توصیه می‌شود) | 3 دقیقه |
+| **[QUICK-START.md](./QUICK-START.md)** | دستورات سریع | 3 دقیقه |
+| **[DEPLOYMENT-GUIDE.md](./DEPLOYMENT-GUIDE.md)** | راهنمای توسعه | 10 دقیقه |
+| **[PRODUCTION-DEPLOYMENT.md](./PRODUCTION-DEPLOYMENT.md)** | راهنمای کامل production | 30 دقیقه |
+| **[DEPLOYMENT-SUMMARY.md](./DEPLOYMENT-SUMMARY.md)** | خلاصه تغییرات و دستورات | 7 دقیقه |
+| **[DEPLOYMENT-INDEX.md](./DEPLOYMENT-INDEX.md)** | راهنمای انتخاب مستندات | 5 دقیقه |
 
 ## 📋 دستورات مفید
 
