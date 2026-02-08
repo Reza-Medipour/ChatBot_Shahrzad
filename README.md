@@ -23,15 +23,14 @@
 - **Server**: Nginx (Production)
 - **Features**:
   - رابط کاربری مدرن و ریسپانسیو
-  - مدیریت session و authentication
+  - مدیریت چت و conversations
   - ارتباط با Backend از طریق REST API
 
 ### Backend
 - **Framework**: FastAPI (Python)
 - **Database ORM**: SQLAlchemy
-- **Authentication**: JWT
 - **Features**:
-  - API endpoints برای authentication و chat
+  - API endpoints برای chat و conversations
   - ارتباط با دیتابیس PostgreSQL
   - امکان اتصال به سرویس LLM خارجی
 
@@ -55,21 +54,12 @@ cd project
 
 # 2. راه‌اندازی با Docker Compose
 docker-compose up -d --build
-
-# 3. ایجاد کاربر admin برای تست
-docker-compose exec backend python create_admin.py
 ```
 
 پس از راه‌اندازی:
 - **Frontend**: http://localhost
 - **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/docs
-
-### ورود به سیستم
-
-برای ورود اولیه از اطلاعات زیر استفاده کنید:
-- **Username**: admin
-- **Password**: admin123
 
 ## 📋 دستورات مفید
 
@@ -112,43 +102,40 @@ project/
 │   │   ├── database.py     # Database connection
 │   │   ├── models.py       # SQLAlchemy models
 │   │   ├── schemas.py      # Pydantic schemas
-│   │   ├── auth.py         # JWT authentication
+│   │   ├── auth.py         # JWT authentication (غیرفعال)
 │   │   ├── config.py       # Settings
 │   │   └── routes/         # API endpoints
-│   │       ├── auth.py     # Authentication routes
+│   │       ├── auth.py     # Authentication routes (غیرفعال)
 │   │       ├── chat.py     # Chat routes
 │   │       └── conversations.py
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── create_admin.py     # Admin user creation script
-├── src/                    # React Frontend
-│   ├── components/
-│   │   ├── ChatInterface.tsx
-│   │   ├── LoginPage.tsx
-│   │   ├── Sidebar.tsx
-│   │   └── WelcomePage.tsx
-│   ├── lib/
-│   │   └── api.ts          # API client
-│   └── App.tsx
-├── Dockerfile              # Frontend Dockerfile
-├── nginx.conf              # Nginx configuration
+├── frontend/               # React Frontend
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── ChatInterface.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── WelcomePage.tsx
+│   │   ├── lib/
+│   │   │   └── api.ts      # API client
+│   │   └── App.tsx
+│   ├── public/
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   ├── package.json
+│   └── vite.config.ts
 ├── docker-compose.yml      # Docker orchestration
-└── .env                    # Environment variables
+└── README.md
 ```
 
 ## 🔌 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - ثبت‌نام کاربر جدید
-- `POST /api/auth/login` - ورود کاربر
-- `GET /api/auth/me` - اطلاعات کاربر جاری
 
 ### Conversations
 - `GET /api/conversations` - دریافت لیست گفتگوها
 - `POST /api/conversations` - ایجاد گفتگوی جدید
 - `DELETE /api/conversations/{id}` - حذف گفتگو
 - `GET /api/conversations/{id}/messages` - دریافت پیام‌های یک گفتگو
-- `POST /api/conversations/{id}/messages` - ارسال پیام جدید
 
 ### Chat
 - `POST /api/chat` - ارسال پیام و دریافت پاسخ از bot
@@ -171,38 +158,28 @@ LLM_API_KEY=
 ```
 
 ### Frontend Environment Variables
-فایل: `.env`
+فایل: `frontend/.env`
 ```env
 VITE_API_URL=http://localhost:8000/api
 ```
 
-## 🔒 امنیت
-
-- ✅ Authentication با JWT tokens
-- ✅ Password hashing با bcrypt
-- ✅ CORS configuration
-- ✅ جداسازی کامل frontend و backend
-- ✅ Database connection pooling
-- ✅ Environment variables برای sensitive data
-
-**نکته مهم**: در production حتماً SECRET_KEY را تغییر دهید!
-
 ## 🌟 ویژگی‌ها
 
 - 📱 رابط کاربری مدرن و mobile-friendly
-- 💬 سیستم چت real-time
-- 👤 مدیریت کاربران با authentication
+- 💬 سیستم چت با ذخیره تاریخچه
 - 📂 مدیریت conversations متعدد
-- 🔐 امنیت در سطح enterprise
 - 🐳 Docker-ready برای deployment آسان
 - 📊 API documentation خودکار با Swagger
 - 🔄 Data persistence با PostgreSQL
 - 🚀 عملکرد بالا با FastAPI async
+- 🎨 طراحی زیبا با Tailwind CSS
 
 ## 🛠️ Development
 
 ### Frontend Development
 ```bash
+cd frontend
+
 # نصب dependencies
 npm install
 
@@ -239,6 +216,7 @@ uvicorn app.main:app --reload
 ## 📖 مستندات بیشتر
 
 - [راهنمای کامل دیپلوی](./DEPLOYMENT-GUIDE.md)
+- [لیست تغییرات](./CHANGES.md)
 - [مستندات API](http://localhost:8000/docs) (بعد از راه‌اندازی)
 
 ## 🐛 عیب‌یابی
