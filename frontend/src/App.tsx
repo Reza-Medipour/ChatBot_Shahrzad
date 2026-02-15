@@ -1,16 +1,26 @@
 import { useState, useEffect } from 'react';
+import AuthPage from './components/AuthPage';
 import WelcomePage from './components/WelcomePage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
 import { apiClient, ChatSession, Message } from './lib/api';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const token = apiClient.getToken();
+    if (token) {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   useEffect(() => {
     loadSessions();
@@ -78,6 +88,20 @@ function App() {
     setShowWelcome(true);
     setCurrentSessionId(null);
     setMessages([]);
+    setIsSidebarOpen(false);
+  };
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    apiClient.setToken(null);
+    setIsAuthenticated(false);
+    setShowWelcome(true);
+    setCurrentSessionId(null);
+    setMessages([]);
+    setSessions([]);
     setIsSidebarOpen(false);
   };
 
@@ -155,6 +179,10 @@ function App() {
     setIsLoading(false);
   };
 
+  if (!isAuthenticated) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
+
   if (showWelcome) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
@@ -176,6 +204,7 @@ function App() {
             onNewChat={handleNewChat}
             onDeleteSession={handleDeleteSession}
             onBackToWelcome={handleBackToWelcome}
+            onLogout={handleLogout}
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
           />

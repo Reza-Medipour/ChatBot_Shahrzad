@@ -95,13 +95,15 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
             messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-2 ${message.is_user ? 'justify-start' : 'justify-end'} animate-fade-in`}
+                className={`flex gap-2 ${message.is_user ? 'justify-end' : 'justify-start'} animate-fade-in`}
               >
-                {message.is_user && (
+                {!message.is_user && (
                   <div className="flex-shrink-0">
-                    <div className="bg-gradient-to-br from-gray-400 to-gray-500 p-2 rounded-xl">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
+                    <img
+                      src="/logo-header.svg"
+                      alt="شهرزاد"
+                      className="w-8 h-8"
+                    />
                   </div>
                 )}
 
@@ -122,13 +124,11 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
                   </p>
                 </div>
 
-                {!message.is_user && (
+                {message.is_user && (
                   <div className="flex-shrink-0">
-                    <img
-                      src="/logo-header.svg"
-                      alt="شهرزاد"
-                      className="w-8 h-8"
-                    />
+                    <div className="bg-gradient-to-br from-gray-400 to-gray-500 p-2 rounded-xl">
+                      <User className="w-4 h-4 text-white" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -136,20 +136,20 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
           )}
 
           {isLoading && (
-            <div className="flex gap-2 justify-end animate-fade-in">
+            <div className="flex gap-2 justify-start animate-fade-in">
+              <div className="flex-shrink-0">
+                <img
+                  src="/logo-header.svg"
+                  alt="شهرزاد"
+                  className="w-8 h-8"
+                />
+              </div>
               <div className="bg-white rounded-2xl p-3 shadow-md">
                 <div className="flex gap-2">
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
                 </div>
-              </div>
-              <div className="flex-shrink-0">
-                <img
-                  src="/logo-1.svg"
-                  alt="شهرزاد"
-                  className="w-8 h-8"
-                />
               </div>
             </div>
           )}
