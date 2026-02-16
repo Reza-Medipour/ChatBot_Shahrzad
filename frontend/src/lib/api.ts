@@ -1,4 +1,11 @@
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const LLM_API_URL = 'http://103.75.196.71:8020/chat';
 
 interface ApiResponse<T> {
   data?: T;
@@ -6,16 +13,13 @@ interface ApiResponse<T> {
 }
 
 class ApiClient {
-  private baseURL: string;
-  private token: string | null;
+  private shahrzaadId: string | null;
 
   constructor() {
-    this.baseURL = API_URL;
-    this.token = localStorage.getItem('token');
+    this.shahrzaadId = localStorage.getItem('shahrzaad_id') || 'default_user';
   }
 
   setToken(token: string | null) {
-    this.token = token;
     if (token) {
       localStorage.setItem('token', token);
     } else {
@@ -24,119 +28,170 @@ class ApiClient {
   }
 
   getToken(): string | null {
-    return this.token;
+    return localStorage.getItem('token');
   }
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...options.headers,
+  setShahrzaadId(id: string) {
+    this.shahrzaadId = id;
+    localStorage.setItem('shahrzaad_id', id);
+  }
+
+  getShahrzaadId(): string {
+    return this.shahrzaadId || 'default_user';
+  }
+
+  async autoLogin(shahrzaad_id: string) {
+    this.setShahrzaadId(shahrzaad_id);
+    return { data: { access_token: 'guest_token_' + Date.now(), token_type: 'bearer' } };
+  }
+
+  async getCurrentUser() {
+    return {
+      data: {
+        id: this.shahrzaadId || 'default_user',
+        shahrzaad_id: this.shahrzaadId,
+        username: 'Guest User',
+        is_registered: false,
+        created_at: new Date().toISOString(),
+        last_login: new Date().toISOString()
+      }
     };
+  }
 
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
-
+  async getConversations(): Promise<ApiResponse<ChatSession[]>> {
     try {
-      const response = await fetch(`${this.baseURL}${endpoint}`, {
-        ...options,
-        headers,
+      const { data, error } = await supabase
+        .from('chat_sessions')
+        .select('*')
+        .eq('shahrzaad_id', this.getShahrzaadId())
+        .order('updated_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading conversations:', error);
+        return { error: error.message };
+      }
+
+      return { data: data || [] };
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+      return { error: 'Failed to load conversations' };
+    }
+  }
+
+  async createConversation(title: string = 'گفتگوی جدید'): Promise<ApiResponse<ChatSession>> {
+    try {
+      const { data, error } = await supabase
+        .from('chat_sessions')
+        .insert({
+          title,
+          shahrzaad_id: this.getShahrzaadId()
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating conversation:', error);
+        return { error: error.message };
+      }
+
+      return { data };
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      return { error: 'Failed to create conversation' };
+    }
+  }
+
+  async deleteConversation(sessionId: string): Promise<ApiResponse<void>> {
+    try {
+      const { error } = await supabase
+        .from('chat_sessions')
+        .delete()
+        .eq('id', sessionId);
+
+      if (error) {
+        console.error('Error deleting conversation:', error);
+        return { error: error.message };
+      }
+
+      return { data: undefined };
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      return { error: 'Failed to delete conversation' };
+    }
+  }
+
+  async getMessages(sessionId: string): Promise<ApiResponse<Message[]>> {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('session_id', sessionId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error loading messages:', error);
+        return { error: error.message };
+      }
+
+      return { data: data || [] };
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      return { error: 'Failed to load messages' };
+    }
+  }
+
+  async createMessage(sessionId: string, content: string, is_user: boolean): Promise<ApiResponse<Message>> {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          session_id: sessionId,
+          content,
+          is_user
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating message:', error);
+        return { error: error.message };
+      }
+
+      await supabase
+        .from('chat_sessions')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('id', sessionId);
+
+      return { data };
+    } catch (error) {
+      console.error('Error creating message:', error);
+      return { error: 'Failed to create message' };
+    }
+  }
+
+  async chat(session_id: string, message: string): Promise<ApiResponse<{ response: string }>> {
+    try {
+      const response = await fetch(LLM_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          session_id,
+          message,
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        return { error: errorData.detail || 'An error occurred' };
+        return { error: 'Failed to get response from LLM' };
       }
 
       const data = await response.json();
       return { data };
     } catch (error) {
-      console.error('API request error:', error);
-      return { error: 'Network error' };
+      console.error('Error calling LLM:', error);
+      return { error: 'Failed to get response from LLM' };
     }
-  }
-
-  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET' });
-  }
-
-  async post<T>(endpoint: string, body?: any): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
-  }
-
-  async put<T>(endpoint: string, body?: any): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(body),
-    });
-  }
-
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
-  }
-
-  // Auth endpoints
-  async register(phone_number: string, username: string, password: string) {
-    return this.post<{ access_token: string; token_type: string }>('/auth/register', {
-      phone_number,
-      username,
-      password,
-    });
-  }
-
-  async login(username: string, password: string) {
-    return this.post<{ access_token: string; token_type: string }>('/auth/login', {
-      username,
-      password,
-    });
-  }
-
-  async autoLogin(shahrzaad_id: string) {
-    return this.post<{ access_token: string; token_type: string }>('/auth/auto-login', {
-      shahrzaad_id,
-    });
-  }
-
-  async getCurrentUser() {
-    return this.get<User>('/auth/me');
-  }
-
-  // Conversations endpoints
-  async getConversations() {
-    return this.get<ChatSession[]>('/conversations');
-  }
-
-  async createConversation(title: string = 'چت جدید') {
-    return this.post<ChatSession>('/conversations', { title });
-  }
-
-  async deleteConversation(sessionId: string) {
-    return this.delete(`/conversations/${sessionId}`);
-  }
-
-  async getMessages(sessionId: string) {
-    return this.get<Message[]>(`/conversations/${sessionId}/messages`);
-  }
-
-  async createMessage(sessionId: string, content: string, is_user: boolean) {
-    return this.post<Message>(`/conversations/${sessionId}/messages`, {
-      content,
-      is_user,
-    });
-  }
-
-  // Chat endpoint
-  async chat(session_id: string, message: string) {
-    return this.post<{ response: string }>('/chat', {
-      session_id,
-      message,
-    });
   }
 }
 
