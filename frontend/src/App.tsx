@@ -161,57 +161,43 @@ function App() {
 
     setIsLoading(true);
 
-    try {
-      // Save user message to database
-      const { data: userMessage, error: userError } = await apiClient.createMessage(
-        currentSessionId,
-        content,
-        true
+    // Optimistically add user message to UI
+    const tempUserMessage: Message = {
+      id: 'temp-' + Date.now(),
+      session_id: currentSessionId,
+      content,
+      is_user: true,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, tempUserMessage]);
+
+    // Update session title if first message
+    const firstMessage = messages.length === 0;
+    if (firstMessage) {
+      const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
+      setSessions((prev) =>
+        prev.map((s) => (s.id === currentSessionId ? { ...s, title } : s))
       );
-
-      if (userError) {
-        console.error('Error saving user message:', userError);
-        setIsLoading(false);
-        return;
-      }
-
-      if (userMessage) {
-        setMessages((prev) => [...prev, userMessage]);
-      }
-
-      // Update session title if first message
-      const firstMessage = messages.length === 0;
-      if (firstMessage) {
-        const title = content.substring(0, 50) + (content.length > 50 ? '...' : '');
-        setSessions((prev) =>
-          prev.map((s) => (s.id === currentSessionId ? { ...s, title } : s))
-        );
-      }
-
-      // Call chat API to get bot response
-      const botResponseText = await generateBotResponse(content, currentSessionId);
-
-      // Save bot message to database
-      const { data: botMessage, error: botError } = await apiClient.createMessage(
-        currentSessionId,
-        botResponseText,
-        false
-      );
-
-      if (botError) {
-        console.error('Error saving bot message:', botError);
-      }
-
-      if (botMessage) {
-        setMessages((prev) => [...prev, botMessage]);
-      }
-
-      await loadSessions();
-    } catch (error) {
-      console.error('Error in handleSendMessage:', error);
-    } finally {
-      setIsLoading(false);
     }
+
+    // Call chat API which handles both saving user message and generating bot response
+    const botResponseText = await generateBotResponse(content, currentSessionId);
+
+    // Add bot message to UI
+    const tempBotMessage: Message = {
+      id: 'temp-bot-' + Date.now(),
+      session_id: currentSessionId,
+      content: botResponseText,
+      is_user: false,
+      created_at: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, tempBotMessage]);
+
+    // Reload messages to get actual IDs from server
+    await loadMessages(currentSessionId);
+    await loadSessions();
+
+    setIsLoading(false);
   };
 
   if (isInitializing) {
