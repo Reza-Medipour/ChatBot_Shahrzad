@@ -6,14 +6,16 @@ from uuid import UUID
 
 # User Schemas
 class UserBase(BaseModel):
-    phone_number: str
+    phone_number: Optional[str] = None
     username: Optional[str] = None
+    shahrzaad_id: Optional[str] = None
 
 
 class UserCreate(BaseModel):
-    phone_number: str
+    phone_number: Optional[str] = None
     username: Optional[str] = None
     password: Optional[str] = None
+    shahrzaad_id: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -21,10 +23,15 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ShahrzaadAutoLogin(BaseModel):
+    shahrzaad_id: str
+
+
 class UserResponse(BaseModel):
     id: UUID
-    phone_number: str
+    phone_number: Optional[str]
     username: Optional[str]
+    shahrzaad_id: Optional[str]
     is_registered: bool
     created_at: datetime
     last_login: datetime

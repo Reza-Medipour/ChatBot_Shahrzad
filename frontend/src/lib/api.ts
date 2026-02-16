@@ -97,6 +97,12 @@ class ApiClient {
     });
   }
 
+  async autoLogin(shahrzaad_id: string) {
+    return this.post<{ access_token: string; token_type: string }>('/auth/auto-login', {
+      shahrzaad_id,
+    });
+  }
+
   async getCurrentUser() {
     return this.get<User>('/auth/me');
   }

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import AuthPage from './components/AuthPage';
 import WelcomePage from './components/WelcomePage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
@@ -13,13 +12,36 @@ function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
 
-  // Check if user is already authenticated
+  // Auto-login with shahrzaad_id
   useEffect(() => {
-    const token = apiClient.getToken();
-    if (token) {
-      setIsAuthenticated(true);
-    }
+    const initializeAuth = async () => {
+      const token = apiClient.getToken();
+
+      if (token) {
+        setIsAuthenticated(true);
+        setIsInitializing(false);
+        return;
+      }
+
+      // TODO: Get shahrzaad_id from query params or other source
+      // For now, using default shahrzaad_id
+      const defaultShahrzaadId = 'default_user';
+
+      const { data, error } = await apiClient.autoLogin(defaultShahrzaadId);
+
+      if (data && data.access_token) {
+        apiClient.setToken(data.access_token);
+        setIsAuthenticated(true);
+      } else {
+        console.error('Auto-login failed:', error);
+      }
+
+      setIsInitializing(false);
+    };
+
+    initializeAuth();
   }, []);
 
   useEffect(() => {
@@ -89,10 +111,6 @@ function App() {
     setCurrentSessionId(null);
     setMessages([]);
     setIsSidebarOpen(false);
-  };
-
-  const handleAuthSuccess = () => {
-    setIsAuthenticated(true);
   };
 
   const handleLogout = () => {
@@ -179,8 +197,26 @@ function App() {
     setIsLoading(false);
   };
 
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-blue-600 font-medium">در حال بارگذاری...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isAuthenticated) {
-    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 font-medium">خطا در احراز هویت</p>
+          <p className="mt-2 text-gray-600">لطفا مجددا تلاش کنید</p>
+        </div>
+      </div>
+    );
   }
 
   if (showWelcome) {

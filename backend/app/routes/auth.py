@@ -83,3 +83,34 @@ async def login(user_credentials: schemas.UserLogin, db: Session = Depends(get_d
 @router.get("/me", response_model=schemas.UserResponse)
 async def get_current_user(current_user: models.User = Depends(auth.get_current_user)):
     return current_user
+
+
+@router.post("/auto-login", response_model=schemas.Token)
+async def auto_login(data: schemas.ShahrzaadAutoLogin, db: Session = Depends(get_db)):
+    """Auto-login endpoint for Shahrzaad users"""
+
+    # Check if user with shahrzaad_id exists
+    db_user = db.query(models.User).filter(models.User.shahrzaad_id == data.shahrzaad_id).first()
+
+    if db_user:
+        # User exists, update last_login
+        db_user.last_login = models.func.now()
+        db.commit()
+        db.refresh(db_user)
+    else:
+        # Create new user with shahrzaad_id
+        db_user = models.User(
+            shahrzaad_id=data.shahrzaad_id,
+            is_registered=True
+        )
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+
+    # Create access token
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = auth.create_access_token(
+        data={"sub": str(db_user.id)}, expires_delta=access_token_expires
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}
