@@ -5,47 +5,12 @@ import ChatInterface from './components/ChatInterface';
 import { apiClient, ChatSession, Message } from './lib/api';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showWelcome, setShowWelcome] = useState(true);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isInitializing, setIsInitializing] = useState(true);
-
-  // Auto-login with shahrzaad_id
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const token = apiClient.getToken();
-
-      if (token) {
-        setIsAuthenticated(true);
-        setIsInitializing(false);
-        return;
-      }
-
-      // TODO: Get shahrzaad_id from query params or other source
-      // For now, using default shahrzaad_id
-      const defaultShahrzaadId = 'default_user';
-
-      const { data, error } = await apiClient.autoLogin(defaultShahrzaadId);
-
-      if (data && data.access_token) {
-        apiClient.setToken(data.access_token);
-        setIsAuthenticated(true);
-      } else {
-        console.error('Auto-login failed, using guest mode:', error);
-        // Use a dummy token for guest mode so the app can work without backend
-        apiClient.setToken('guest_token_' + Date.now());
-        setIsAuthenticated(true);
-      }
-
-      setIsInitializing(false);
-    };
-
-    initializeAuth();
-  }, []);
 
   useEffect(() => {
     loadSessions();
@@ -117,8 +82,8 @@ function App() {
   };
 
   const handleLogout = () => {
-    apiClient.setToken(null);
-    setIsAuthenticated(false);
+    // Regenerate new user ID (simulates logout by creating new session)
+    apiClient.regenerateUserId();
     setShowWelcome(true);
     setCurrentSessionId(null);
     setMessages([]);
@@ -199,17 +164,6 @@ function App() {
 
     setIsLoading(false);
   };
-
-  if (isInitializing) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-blue-600 font-medium">در حال بارگذاری...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (showWelcome) {
     return (

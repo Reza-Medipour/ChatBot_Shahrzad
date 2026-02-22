@@ -42,6 +42,13 @@ class ApiClient {
     return this.userId;
   }
 
+  regenerateUserId(): string {
+    const newUserId = this.generateUserId();
+    localStorage.setItem('user_id', newUserId);
+    this.userId = newUserId;
+    return newUserId;
+  }
+
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
