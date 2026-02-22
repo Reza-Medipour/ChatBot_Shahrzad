@@ -18,27 +18,28 @@ interface ApiResponse<T> {
 
 class ApiClient {
   private baseURL: string;
-  private token: string | null;
+  private userId: string;
 
   constructor() {
     this.baseURL = getApiUrl();
-    this.token = localStorage.getItem('token');
 
-    // Debug: log the API URL being used
-    console.log('API Base URL:', this.baseURL);
-  }
-
-  setToken(token: string | null) {
-    this.token = token;
-    if (token) {
-      localStorage.setItem('token', token);
-    } else {
-      localStorage.removeItem('token');
+    let userId = localStorage.getItem('user_id');
+    if (!userId) {
+      userId = this.generateUserId();
+      localStorage.setItem('user_id', userId);
     }
+    this.userId = userId;
+
+    console.log('API Base URL:', this.baseURL);
+    console.log('User ID:', this.userId);
   }
 
-  getToken(): string | null {
-    return this.token;
+  private generateUserId(): string {
+    return 'user_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+  }
+
+  getUserId(): string {
+    return this.userId;
   }
 
   private async request<T>(
@@ -47,12 +48,9 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
+      'X-User-Id': this.userId,
       ...options.headers,
     };
-
-    if (this.token) {
-      headers['Authorization'] = `Bearer ${this.token}`;
-    }
 
     try {
       const response = await fetch(`${this.baseURL}${endpoint}`, {
@@ -95,15 +93,6 @@ class ApiClient {
     return this.request<T>(endpoint, { method: 'DELETE' });
   }
 
-  async autoLogin(shahrzaad_id: string) {
-    return this.post<{ access_token: string; token_type: string }>('/auth/auto-login', {
-      shahrzaad_id,
-    });
-  }
-
-  async getCurrentUser() {
-    return this.get<User>('/auth/me');
-  }
 
   async getConversations() {
     return this.get<ChatSession[]>('/conversations');

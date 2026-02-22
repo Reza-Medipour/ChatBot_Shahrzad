@@ -5,7 +5,7 @@ from .. import models, schemas, auth
 from ..database import get_db
 from ..config import get_settings
 
-router = APIRouter(prefix="/api/auth", tags=["Authentication"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 settings = get_settings()
 
 

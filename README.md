@@ -1,6 +1,6 @@
 # Shahrzad Chatbot
 
-A professional chatbot system with separated Frontend and Backend architecture, PostgreSQL database, and Docker deployment capability.
+Professional chatbot system with React frontend, FastAPI backend, and PostgreSQL database.
 
 ## Architecture
 
@@ -13,110 +13,104 @@ A professional chatbot system with separated Frontend and Backend architecture, 
 │   Nginx      │    Port 8000     │   Internal           │
 └──────────────┴──────────────────┴──────────────────────┘
                       │
-                  Port 8090 (Nginx Reverse Proxy)
+              Nginx Reverse Proxy
 ```
 
-### Stack
+## Stack
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
-- **Backend**: FastAPI + SQLAlchemy + PostgreSQL
-- **Deployment**: Docker + Docker Compose + Nginx
+- **Backend**: FastAPI + SQLAlchemy + PostgreSQL 15
+- **Deployment**: Docker Compose + Nginx
 
 ## Quick Start
-
-### Prerequisites
-- Docker & Docker Compose
-- Git
-
-### Installation
 
 ```bash
 git clone <repository-url> shahrzad-chatbot
 cd shahrzad-chatbot
 
 # Configure environment
-cp backend/.env.example backend/.env
 cp .env.example .env
-
-# Edit docker-compose.yml and change:
-# 1. SECRET_KEY (generate with: openssl rand -hex 32)
-# 2. LLM_API_URL (your LLM service endpoint)
+nano .env  # Edit configuration
 
 # Deploy
 docker-compose up -d --build
 ```
 
-### Access
-- **Application**: `http://YOUR_SERVER_IP:8090`
-- **API Docs**: `http://YOUR_SERVER_IP:8090/docs`
-
 ## Configuration
 
-### Environment Variables
+All configuration in `.env`:
 
-**Root `.env`**
 ```env
-VITE_SUPABASE_URL=your_supabase_url_here
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-```
+# Database
+POSTGRES_HOST=database
+POSTGRES_PORT=5432
+POSTGRES_DB=shahrzad_db
+POSTGRES_USER=shahrzad
+POSTGRES_PASSWORD=shahrzad_password
 
-**Backend `.env`**
-```env
-DATABASE_URL=postgresql://shahrzad:shahrzad_password@database:5432/shahrzad_db
-SECRET_KEY=your-secret-key-change-in-production-min-32-chars-long-for-security
+# Backend
+BACKEND_HOST=backend
+BACKEND_PORT=8000
+
+# Frontend
+FRONTEND_HOST=frontend
+FRONTEND_PORT=80
+
+# Nginx
+NGINX_EXTERNAL_PORT=8090
+NGINX_INTERNAL_PORT=80
+
+# Security
+SECRET_KEY=your-secret-key-min-32-chars
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
 
+# LLM Service
 LLM_API_URL=http://YOUR_SERVER_IP:8020/chat
 LLM_API_KEY=
 ```
 
-**Frontend `.env`**
-```env
-# Leave empty - uses dynamic URL detection
-VITE_API_URL=
-```
+## Access
 
-### Docker Compose Ports
-
-Edit `docker-compose.yml` to change the external port:
-```yaml
-nginx:
-  ports:
-    - "8090:80"  # Change 8090 to your desired port
-```
+- **Application**: `http://YOUR_SERVER_IP:8090`
+- **API Docs**: `http://YOUR_SERVER_IP:8090/docs`
 
 ## Commands
 
 ```bash
-# View status
+# Status
 docker-compose ps
 
-# View logs
+# Logs
 docker-compose logs -f
 
-# Stop services
+# Restart
+docker-compose restart backend
+
+# Stop
 docker-compose down
 
 # Rebuild
 docker-compose up -d --build
 
-# Restart service
-docker-compose restart backend
-
 # Database backup
 docker-compose exec database pg_dump -U shahrzad shahrzad_db > backup.sql
-
-# Database restore
-docker-compose exec -T database psql -U shahrzad shahrzad_db < backup.sql
 ```
+
+## Features
+
+- User sessions with automatic ID generation
+- Chat history persistence
+- External LLM API integration
+- No authentication required
+- Automatic user tracking via browser localStorage
 
 ## API Endpoints
 
-- `GET /api/conversations` - Get conversation list
-- `POST /api/conversations` - Create new conversation
+- `GET /api/conversations` - List conversations
+- `POST /api/conversations` - Create conversation
 - `DELETE /api/conversations/{id}` - Delete conversation
 - `GET /api/conversations/{id}/messages` - Get messages
-- `POST /api/chat` - Send message to bot
+- `POST /api/chat` - Send message
 
 ## Development
 
@@ -124,8 +118,7 @@ docker-compose exec -T database psql -U shahrzad shahrzad_db < backup.sql
 ```bash
 cd frontend
 npm install
-npm run dev      # Development server
-npm run build    # Production build
+npm run dev
 ```
 
 ### Backend
@@ -139,29 +132,17 @@ uvicorn app.main:app --reload
 
 ## Troubleshooting
 
-### Connection Issues
+### 404 Errors
 ```bash
-# Check logs
-docker-compose logs backend
 docker-compose logs nginx
-
-# Verify network
-docker network ls
-docker network inspect shahrzad_network
+docker-compose logs backend
 ```
 
 ### Database Issues
 ```bash
-# Reset database
 docker-compose down -v
 docker-compose up -d --build
 ```
 
-### Frontend can't connect to API
-- Check that backend is running: `docker-compose ps`
-- Verify nginx config: `docker-compose logs nginx`
-- Clear browser cache and reload
-
-## License
-
-Private project.
+### Port Already in Use
+Edit `NGINX_EXTERNAL_PORT` in `.env`

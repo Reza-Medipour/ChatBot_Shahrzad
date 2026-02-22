@@ -1,20 +1,40 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
-from typing import List
-from uuid import UUID
+from typing import List, Optional
+from uuid import UUID, uuid4
 from .. import models, schemas, auth
 from ..database import get_db
 
-router = APIRouter(prefix="/api/conversations", tags=["Conversations"])
+router = APIRouter(prefix="/conversations", tags=["Conversations"])
+
+
+def get_or_create_user(user_id: Optional[str], db: Session) -> models.User:
+    if not user_id:
+        user_id = str(uuid4())
+
+    user = db.query(models.User).filter(models.User.shahrzaad_id == user_id).first()
+
+    if not user:
+        user = models.User(
+            shahrzaad_id=user_id,
+            is_registered=True
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    return user
 
 
 @router.get("", response_model=List[schemas.ChatSessionResponse])
 async def get_conversations(
-    current_user: models.User = Depends(auth.get_current_user),
+    x_user_id: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
+    user = get_or_create_user(x_user_id, db)
+
     sessions = db.query(models.ChatSession).filter(
-        models.ChatSession.user_id == current_user.id
+        models.ChatSession.user_id == user.id
     ).order_by(models.ChatSession.updated_at.desc()).all()
 
     return sessions
@@ -23,12 +43,14 @@ async def get_conversations(
 @router.post("", response_model=schemas.ChatSessionResponse)
 async def create_conversation(
     session_data: schemas.ChatSessionCreate,
-    current_user: models.User = Depends(auth.get_current_user),
+    x_user_id: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
+    user = get_or_create_user(x_user_id, db)
+
     new_session = models.ChatSession(
         title=session_data.title,
-        user_id=current_user.id
+        user_id=user.id
     )
     db.add(new_session)
     db.commit()
@@ -40,12 +62,14 @@ async def create_conversation(
 @router.delete("/{session_id}")
 async def delete_conversation(
     session_id: UUID,
-    current_user: models.User = Depends(auth.get_current_user),
+    x_user_id: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
+    user = get_or_create_user(x_user_id, db)
+
     session = db.query(models.ChatSession).filter(
         models.ChatSession.id == session_id,
-        models.ChatSession.user_id == current_user.id
+        models.ChatSession.user_id == user.id
     ).first()
 
     if not session:
@@ -63,13 +87,14 @@ async def delete_conversation(
 @router.get("/{session_id}/messages", response_model=List[schemas.MessageResponse])
 async def get_messages(
     session_id: UUID,
-    current_user: models.User = Depends(auth.get_current_user),
+    x_user_id: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
-    # Verify session belongs to user
+    user = get_or_create_user(x_user_id, db)
+
     session = db.query(models.ChatSession).filter(
         models.ChatSession.id == session_id,
-        models.ChatSession.user_id == current_user.id
+        models.ChatSession.user_id == user.id
     ).first()
 
     if not session:
@@ -89,13 +114,14 @@ async def get_messages(
 async def create_message(
     session_id: UUID,
     message_data: schemas.MessageCreate,
-    current_user: models.User = Depends(auth.get_current_user),
+    x_user_id: Optional[str] = Header(None),
     db: Session = Depends(get_db)
 ):
-    # Verify session belongs to user
+    user = get_or_create_user(x_user_id, db)
+
     session = db.query(models.ChatSession).filter(
         models.ChatSession.id == session_id,
-        models.ChatSession.user_id == current_user.id
+        models.ChatSession.user_id == user.id
     ).first()
 
     if not session:
@@ -111,7 +137,6 @@ async def create_message(
     )
     db.add(new_message)
 
-    # Update session's updated_at
     session.updated_at = models.func.now()
 
     db.commit()

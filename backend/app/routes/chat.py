@@ -6,7 +6,7 @@ from .. import models, schemas, auth
 from ..database import get_db
 from ..config import get_settings
 
-router = APIRouter(prefix="/api", tags=["Chat"])
+router = APIRouter(prefix="", tags=["Chat"])
 settings = get_settings()
 
 
@@ -61,13 +61,10 @@ async def generate_bot_response(user_message: str, session_id: str) -> str:
 @router.post("/chat", response_model=schemas.ChatResponse)
 async def chat(
     request: schemas.ChatRequest,
-    current_user: models.User = Depends(auth.get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Verify session belongs to user
     session = db.query(models.ChatSession).filter(
-        models.ChatSession.id == UUID(request.session_id),
-        models.ChatSession.user_id == current_user.id
+        models.ChatSession.id == UUID(request.session_id)
     ).first()
 
     if not session:

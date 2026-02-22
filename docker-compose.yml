@@ -4,17 +4,18 @@ services:
   database:
     image: postgres:15-alpine
     container_name: shahrzad_db
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: shahrzad_db
-      POSTGRES_USER: shahrzad
-      POSTGRES_PASSWORD: shahrzad_password
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # No external ports - internal only for security
     networks:
       - shahrzad_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shahrzad -d shahrzad_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,14 +25,15 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: shahrzad_backend
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql://shahrzad:shahrzad_password@database:5432/shahrzad_db
-      SECRET_KEY: your-secret-key-change-in-production-min-32-chars-long-for-security
-      ALGORITHM: HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES: 10080
-      LLM_API_URL: http://103.75.196.71:8020/chat
-      LLM_API_KEY: ""
-    # No external ports - accessed through nginx
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      LLM_API_URL: ${LLM_API_URL}
+      LLM_API_KEY: ${LLM_API_KEY}
     depends_on:
       database:
         condition: service_healthy
@@ -46,7 +48,6 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: shahrzad_frontend
-    # No external ports - accessed through nginx
     depends_on:
       - backend
     networks:
@@ -56,8 +57,10 @@ services:
   nginx:
     image: nginx:alpine
     container_name: shahrzad_nginx
+    env_file:
+      - .env
     ports:
-      - "8090:80"
+      - "${NGINX_EXTERNAL_PORT}:${NGINX_INTERNAL_PORT}"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
