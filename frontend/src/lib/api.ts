@@ -1,4 +1,15 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8090/api';
+// Dynamic API URL based on current location
+const getApiUrl = () => {
+  // If running in development with VITE_API_URL env var
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // In production, use same host as frontend
+  // This works whether accessed via localhost, IP, or domain
+  const origin = window.location.origin;
+  return `${origin}/api`;
+};
 
 interface ApiResponse<T> {
   data?: T;
@@ -10,8 +21,11 @@ class ApiClient {
   private token: string | null;
 
   constructor() {
-    this.baseURL = API_URL;
+    this.baseURL = getApiUrl();
     this.token = localStorage.getItem('token');
+
+    // Debug: log the API URL being used
+    console.log('API Base URL:', this.baseURL);
   }
 
   setToken(token: string | null) {
