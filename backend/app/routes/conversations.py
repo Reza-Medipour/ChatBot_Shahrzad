@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from .. import models, schemas, auth
 from ..database import get_db
 
-router = APIRouter(prefix="/conversations", tags=["Conversations"])
+router = APIRouter(tags=["Conversations"])
 
 
 def get_or_create_user(user_id: Optional[str], db: Session) -> models.User:

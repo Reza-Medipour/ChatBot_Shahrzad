@@ -1,5 +1,17 @@
 # راهنمای Deploy
 
+## ساختار API Routes
+
+Backend routes با prefix `/api` کار می‌کنند:
+
+```
+Frontend Request: /api/conversations
+    ↓
+Nginx: /api/conversations → backend:8000/api/conversations
+    ↓
+FastAPI: /api/conversations (conversations.router با prefix="/api/conversations")
+```
+
 ## مرحله 1: کپی فایل‌ها به سرور
 
 ```bash
