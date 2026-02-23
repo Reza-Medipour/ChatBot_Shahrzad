@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Header
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID, uuid4
+from datetime import datetime
 from .. import models, schemas, auth
 from ..database import get_db
 
@@ -10,15 +11,12 @@ router = APIRouter(tags=["Conversations"])
 
 def get_or_create_user(user_id: Optional[str], db: Session) -> models.User:
     if not user_id:
-        user_id = str(uuid4())
+        user_id = f"user_{str(uuid4()).split('-')[0]}_{int(datetime.now().timestamp() * 1000)}"
 
-    user = db.query(models.User).filter(models.User.shahrzaad_id == user_id).first()
+    user = db.query(models.User).filter(models.User.id == user_id).first()
 
     if not user:
-        user = models.User(
-            shahrzaad_id=user_id,
-            is_registered=True
-        )
+        user = models.User(id=user_id)
         db.add(user)
         db.commit()
         db.refresh(user)

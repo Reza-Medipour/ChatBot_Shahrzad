@@ -9,14 +9,8 @@ from .database import Base
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    shahrzaad_id = Column(String, unique=True, nullable=True, index=True)
-    phone_number = Column(String, unique=True, nullable=True, index=True)
-    username = Column(String, unique=True, nullable=True, index=True)
-    password = Column(String, nullable=True)
-    is_registered = Column(Boolean, default=False)
+    id = Column(String, primary_key=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    last_login = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
 
@@ -26,7 +20,7 @@ class ChatSession(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(Text, default="چت جدید")
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), index=True)
 
