@@ -6,35 +6,16 @@ from uuid import UUID
 
 # User Schemas
 class UserBase(BaseModel):
-    phone_number: Optional[str] = None
-    username: Optional[str] = None
-    shahrzaad_id: Optional[str] = None
+    pass
 
 
 class UserCreate(BaseModel):
-    phone_number: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None
-    shahrzaad_id: Optional[str] = None
-
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-
-class ShahrzaadAutoLogin(BaseModel):
-    shahrzaad_id: str
+    pass
 
 
 class UserResponse(BaseModel):
-    id: UUID
-    phone_number: Optional[str]
-    username: Optional[str]
-    shahrzaad_id: Optional[str]
-    is_registered: bool
+    id: str
     created_at: datetime
-    last_login: datetime
 
     class Config:
         from_attributes = True
@@ -61,7 +42,7 @@ class ChatSessionUpdate(BaseModel):
 class ChatSessionResponse(BaseModel):
     id: UUID
     title: str
-    user_id: Optional[UUID]
+    user_id: Optional[str]
     created_at: datetime
     updated_at: datetime
 
