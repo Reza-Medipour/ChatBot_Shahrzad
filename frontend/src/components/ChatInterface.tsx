@@ -46,64 +46,69 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-br from-gray-50 to-blue-50 h-full">
-      <div className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="w-full px-4 py-3">
+    <div className="flex-1 flex flex-col bg-white h-full">
+      <div className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] shadow-lg rounded-t-3xl overflow-hidden">
+        <div className="w-full px-4 py-4">
           <div className="flex items-center justify-between">
             <button
               onClick={onOpenSidebar}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              className="px-4 py-2 bg-white/30 hover:bg-white/40 rounded-full text-white text-sm font-medium transition-colors backdrop-blur-sm"
             >
-              <Menu className="w-6 h-6 text-gray-700" />
+              پیامهای قبلی
             </button>
 
-            <div className="flex items-center gap-3 flex-1 justify-center">
-              <div className="relative">
-                <img
-                  src="/logo-header.svg"
-                  alt="شهرزاد"
-                  className="h-10 w-10"
-                />
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <h2 className="font-bold text-white text-base">دستیار هوشمند</h2>
               </div>
-              <div>
-                <h2 className="font-bold text-gray-800 text-sm">چت بات شهرزاد</h2>
-                <p className="text-xs text-gray-500">آنلاین</p>
+              <div className="relative">
+                <div className="w-14 h-14 bg-white/20 rounded-2xl backdrop-blur-sm flex items-center justify-center">
+                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="16" fill="white" opacity="0.95"/>
+                    <circle cx="15" cy="17" r="2" fill="#3b82f6"/>
+                    <circle cx="25" cy="17" r="2" fill="#3b82f6"/>
+                    <path d="M14 24 Q20 28 26 24" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" fill="none"/>
+                  </svg>
+                </div>
               </div>
             </div>
 
-            <div className="w-10"></div>
+            <button className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className="flex-1 overflow-y-auto p-4 bg-[#f5f7fa]">
         <div className="w-full space-y-3">
           {messages.length === 0 ? (
             <div className="text-center py-8">
-              <div className="bg-white rounded-2xl shadow-lg p-6 inline-block">
-                <img
-                  src="/logo-header.svg"
-                  alt="شهرزاد"
-                  className="h-16 w-16 mx-auto mb-3"
-                />
-                <h3 className="text-lg font-bold text-gray-800 mb-2">
-                  سلام! چطور می‌تونم کمکتون کنم؟
-                </h3>
-              </div>
-
               {suggestedPrompts.length > 0 && (
-                <div className="mt-6 grid grid-cols-2 gap-3 max-w-sm mx-auto px-4">
+                <div className="mt-6 space-y-3 max-w-md mx-auto">
                   {suggestedPrompts.map((prompt, index) => (
                     <button
                       key={index}
                       onClick={() => onSendMessage(prompt)}
                       disabled={isLoading}
-                      className="p-4 bg-white hover:bg-gradient-to-br hover:from-[#1e40af] hover:to-[#3b82f6] rounded-2xl text-center transition-all duration-300 hover:shadow-lg hover:scale-105 group border border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full p-4 bg-white hover:bg-gray-50 rounded-2xl text-right transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between group"
                     >
-                      <p className="text-sm font-medium text-gray-700 group-hover:text-white transition-colors leading-relaxed">
-                        {prompt}
-                      </p>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800 leading-relaxed">
+                          {prompt}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {index === 0 ? 'در یکی از خدمات شهرزاد نیاز به کمک دارم.' :
+                           index === 1 ? 'برای تیم پشتیبانی پیام ارسال کنم.' :
+                           'می‌خواهم خودم پاسخ را پیدا کنم.'}
+                        </p>
+                      </div>
+                      <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
                     </button>
                   ))}
                 </div>
@@ -116,58 +121,52 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
                 className={`flex gap-2 ${message.is_user ? 'justify-end' : 'justify-start'} animate-fade-in`}
               >
                 {!message.is_user && (
-                  <div className="flex-shrink-0">
-                    <img
-                      src="/logo-header.svg"
-                      alt="شهرزاد"
-                      className="w-8 h-8"
-                    />
+                  <div className="flex-shrink-0 mt-2">
+                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" fill="#3b82f6" opacity="0.1"/>
+                        <circle cx="9" cy="10" r="1.5" fill="#3b82f6"/>
+                        <circle cx="15" cy="10" r="1.5" fill="#3b82f6"/>
+                        <path d="M9 14 Q12 16 15 14" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+                      </svg>
+                    </div>
                   </div>
                 )}
 
                 <div
-                  className={`max-w-[75%] rounded-2xl p-3 shadow-md ${
+                  className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
                     message.is_user
-                      ? 'bg-gradient-to-br from-[#1e40af] to-[#3b82f6] text-white'
-                      : 'bg-white text-gray-800'
+                      ? 'bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-white rounded-br-md'
+                      : 'bg-white text-gray-800 rounded-tl-md'
                   }`}
                 >
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
                   <p
-                    className={`text-xs mt-2 ${
-                      message.is_user ? 'text-blue-100' : 'text-gray-400'
+                    className={`text-xs mt-2 text-left ${
+                      message.is_user ? 'text-blue-50' : 'text-gray-400'
                     }`}
                   >
                     {formatTime(message.created_at)}
                   </p>
                 </div>
-
-                {message.is_user && (
-                  <div className="flex-shrink-0">
-                    <div className="bg-gradient-to-br from-gray-400 to-gray-500 p-2 rounded-xl">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                )}
               </div>
             ))
           )}
 
           {isLoading && (
             <div className="flex gap-2 justify-start animate-fade-in">
-              <div className="flex-shrink-0">
-                <img
-                  src="/logo-header.svg"
-                  alt="شهرزاد"
-                  className="w-8 h-8"
-                />
-              </div>
-              <div className="bg-white rounded-2xl p-3 shadow-md">
-                <div className="flex gap-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></div>
+              <div className="flex-shrink-0 mt-2">
+                <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" fill="#3b82f6" opacity="0.1"/>
+                    <circle cx="9" cy="10" r="1.5" fill="#3b82f6"/>
+                    <circle cx="15" cy="10" r="1.5" fill="#3b82f6"/>
+                    <path d="M9 14 Q12 16 15 14" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+                  </svg>
                 </div>
+              </div>
+              <div className="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                <p className="text-sm text-gray-600">در حال نوشتن...</p>
               </div>
             </div>
           )}
@@ -176,35 +175,32 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
         </div>
       </div>
 
-      <div className="border-t border-gray-200 bg-white shadow-lg">
-        <form onSubmit={handleSubmit} className="w-full p-3">
-          <div className="flex gap-2 items-end">
-            <textarea
+      <div className="bg-white border-t border-gray-200 px-4 py-3">
+        <form onSubmit={handleSubmit} className="w-full">
+          <div className="flex gap-2 items-center bg-gray-100 rounded-2xl px-4 py-2">
+            <button
+              type="button"
+              className="text-gray-500 hover:text-gray-700 transition-colors p-1"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </button>
+            <input
+              type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
               placeholder="پیام خود را بنویسید..."
-              className="flex-1 px-3 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1e40af] transition-colors text-right text-sm resize-none min-h-[40px] max-h-[120px]"
+              className="flex-1 bg-transparent outline-none text-sm text-right placeholder-gray-400"
               disabled={isLoading}
               dir="rtl"
-              rows={1}
-              style={{
-                height: 'auto',
-                overflowY: inputValue.split('\n').length > 3 ? 'auto' : 'hidden'
-              }}
-              onInput={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                target.style.height = 'auto';
-                target.style.height = Math.min(target.scrollHeight, 120) + 'px';
-              }}
             />
             <button
               type="submit"
               disabled={!inputValue.trim() || isLoading}
-              className="bg-gradient-to-r from-[#1e40af] to-[#3b82f6] hover:from-[#1e3a8a] hover:to-[#2563eb] disabled:from-gray-300 disabled:to-gray-400 text-white px-4 py-2 rounded-xl shadow-md hover:shadow-lg transform active:scale-[0.98] transition-all duration-200 disabled:transform-none disabled:cursor-not-allowed flex items-center gap-2 text-sm"
+              className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] hover:from-[#2563eb] hover:to-[#3b82f6] disabled:from-gray-300 disabled:to-gray-400 text-white p-2 rounded-xl shadow-sm hover:shadow-md transform active:scale-95 transition-all duration-200 disabled:transform-none disabled:cursor-not-allowed"
             >
-              <Send className="w-4 h-4" />
-              <span>ارسال</span>
+              <Send className="w-5 h-5" />
             </button>
           </div>
         </form>

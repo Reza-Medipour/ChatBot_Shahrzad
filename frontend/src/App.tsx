@@ -6,10 +6,9 @@ import { apiClient } from './lib/api';
 import type { ChatSession, Message } from './lib/api';
 
 const SUGGESTED_PROMPTS = [
-  'پیگیری وضعیت سفارش',
-  'نمایش پیشنهادات قبلی',
-  'راهنمای استفاده از سرویس‌ها',
-  'سوالات متداول',
+  'مشکلی در یکی از خدمات دارم!',
+  'ارسال پیام به پشتیبانی',
+  'پرسش‌های پرتکرار',
 ];
 
 function App() {
