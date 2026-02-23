@@ -1,5 +1,5 @@
 import { Plus, MessageSquare, Trash2, X, LogOut } from 'lucide-react';
-import { ChatSession } from '../lib/api';
+import type { ChatSession } from '../lib/api';
 
 interface SidebarProps {
   sessions: ChatSession[];

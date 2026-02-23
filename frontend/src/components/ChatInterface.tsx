@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Send, User, Menu } from 'lucide-react';
-import { Message } from '../lib/api';
+import type { Message } from '../lib/api';
 
 interface ChatInterfaceProps {
   messages: Message[];
   onSendMessage: (content: string) => void;
   isLoading: boolean;
   onOpenSidebar: () => void;
+  suggestedPrompts?: string[];
 }
 
-export default function ChatInterface({ messages, onSendMessage, isLoading, onOpenSidebar }: ChatInterfaceProps) {
+export default function ChatInterface({ messages, onSendMessage, isLoading, onOpenSidebar, suggestedPrompts = [] }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -90,6 +91,23 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
                   سلام! چطور می‌تونم کمکتون کنم؟
                 </h3>
               </div>
+
+              {suggestedPrompts.length > 0 && (
+                <div className="mt-6 grid grid-cols-2 gap-3 max-w-sm mx-auto px-4">
+                  {suggestedPrompts.map((prompt, index) => (
+                    <button
+                      key={index}
+                      onClick={() => onSendMessage(prompt)}
+                      disabled={isLoading}
+                      className="p-4 bg-white hover:bg-gradient-to-br hover:from-[#1e40af] hover:to-[#3b82f6] rounded-2xl text-center transition-all duration-300 hover:shadow-lg hover:scale-105 group border border-blue-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <p className="text-sm font-medium text-gray-700 group-hover:text-white transition-colors leading-relaxed">
+                        {prompt}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ) : (
             messages.map((message) => (
