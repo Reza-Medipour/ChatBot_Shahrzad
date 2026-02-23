@@ -24,16 +24,20 @@ Professional chatbot system with React frontend, FastAPI backend, and PostgreSQL
 ## Quick Start
 
 ```bash
-git clone <repository-url> shahrzad-chatbot
-cd shahrzad-chatbot
+# توقف و حذف کانتینرهای قدیمی (اگر وجود دارد)
+docker compose down -v
 
-# Configure environment
-cp .env.example .env
-nano .env  # Edit configuration
+# ساخت و اجرا
+docker compose up --build -d
 
-# Deploy
-docker-compose up -d --build
+# مشاهده لاگ‌ها
+docker compose logs -f
+
+# بررسی وضعیت (همه باید Up باشند)
+docker compose ps
 ```
+
+**نکته مهم:** فایل `.env` در ریشه پروژه باید وجود داشته باشد.
 
 ## Configuration
 
