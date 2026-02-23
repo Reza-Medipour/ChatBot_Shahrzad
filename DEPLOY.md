@@ -1,4 +1,46 @@
-# راهنمای Deploy
+# راهنمای راه‌اندازی سریع
+
+## دستورات اصلی
+
+```bash
+# توقف و حذف کانتینرهای قدیمی
+docker compose down -v
+
+# ساخت و اجرا
+docker compose up --build -d
+
+# مشاهده لاگ‌ها
+docker compose logs -f
+
+# بررسی وضعیت
+docker compose ps
+```
+
+## تست
+
+```bash
+# تست API
+curl http://localhost:8090/api
+curl http://103.75.196.71:8090/api
+
+# مرورگر
+http://103.75.196.71:8090
+```
+
+## اگر مشکل بود
+
+```bash
+# لاگ backend
+docker compose logs backend
+
+# لاگ database
+docker compose logs database
+
+# ری‌استارت
+docker compose restart
+```
+
+---
 
 ## ساختار API Routes
 
