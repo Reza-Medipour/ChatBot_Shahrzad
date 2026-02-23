@@ -2,7 +2,15 @@ import { useState, useEffect } from 'react';
 import WelcomePage from './components/WelcomePage';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
-import { apiClient, ChatSession, Message } from './lib/api';
+import { apiClient } from './lib/api';
+import type { ChatSession, Message } from './lib/api';
+
+const SUGGESTED_PROMPTS = [
+  'پیگیری وضعیت سفارش',
+  'نمایش پیشنهادات قبلی',
+  'راهنمای استفاده از سرویس‌ها',
+  'سوالات متداول',
+];
 
 function App() {
   const [showWelcome, setShowWelcome] = useState(true);
@@ -195,6 +203,7 @@ function App() {
             onSendMessage={handleSendMessage}
             isLoading={isLoading}
             onOpenSidebar={() => setIsSidebarOpen(true)}
+            suggestedPrompts={messages.length === 0 ? SUGGESTED_PROMPTS : []}
           />
         </div>
       </div>
