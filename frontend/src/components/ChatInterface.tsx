@@ -59,17 +59,14 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
 
             <div className="flex items-center gap-3">
               <div className="text-right">
-                <h2 className="font-bold text-white text-base">دستیار هوشمند</h2>
+                <h2 className="font-bold text-white text-base">دستیار هوشمند شهرزاد</h2>
               </div>
               <div className="relative">
-                <div className="w-14 h-14 bg-white/20 rounded-2xl backdrop-blur-sm flex items-center justify-center">
-                  <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                    <circle cx="20" cy="20" r="16" fill="white" opacity="0.95"/>
-                    <circle cx="15" cy="17" r="2" fill="#3b82f6"/>
-                    <circle cx="25" cy="17" r="2" fill="#3b82f6"/>
-                    <path d="M14 24 Q20 28 26 24" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" fill="none"/>
-                  </svg>
-                </div>
+                <img
+                  src="/bot-icon.png"
+                  alt="دستیار هوشمند"
+                  className="w-14 h-14 object-contain"
+                />
               </div>
             </div>
 
@@ -85,85 +82,76 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
 
       <div className="flex-1 overflow-y-auto p-4 bg-[#f5f7fa]">
         <div className="w-full space-y-3">
-          {messages.length === 0 ? (
-            <div className="text-center py-8">
-              {suggestedPrompts.length > 0 && (
-                <div className="mt-6 space-y-3 max-w-md mx-auto">
-                  {suggestedPrompts.map((prompt, index) => (
-                    <button
-                      key={index}
-                      onClick={() => onSendMessage(prompt)}
-                      disabled={isLoading}
-                      className="w-full p-4 bg-white hover:bg-gray-50 rounded-2xl text-right transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between group"
-                    >
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-gray-800 leading-relaxed">
-                          {prompt}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          {index === 0 ? 'در یکی از خدمات شهرزاد نیاز به کمک دارم.' :
-                           index === 1 ? 'برای تیم پشتیبانی پیام ارسال کنم.' :
-                           'می‌خواهم خودم پاسخ را پیدا کنم.'}
-                        </p>
-                      </div>
-                      <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                  ))}
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex gap-2 ${message.is_user ? 'justify-end' : 'justify-start'} animate-fade-in`}
+            >
+              {!message.is_user && (
+                <div className="flex-shrink-0 mt-2">
+                  <img
+                    src="/bot-icon.png"
+                    alt="دستیار هوشمند"
+                    className="w-10 h-10 object-contain"
+                  />
                 </div>
               )}
-            </div>
-          ) : (
-            messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex gap-2 ${message.is_user ? 'justify-end' : 'justify-start'} animate-fade-in`}
-              >
-                {!message.is_user && (
-                  <div className="flex-shrink-0 mt-2">
-                    <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" fill="#3b82f6" opacity="0.1"/>
-                        <circle cx="9" cy="10" r="1.5" fill="#3b82f6"/>
-                        <circle cx="15" cy="10" r="1.5" fill="#3b82f6"/>
-                        <path d="M9 14 Q12 16 15 14" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-                      </svg>
-                    </div>
-                  </div>
-                )}
 
-                <div
-                  className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
-                    message.is_user
-                      ? 'bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-white rounded-br-md'
-                      : 'bg-white text-gray-800 rounded-tl-md'
+              <div
+                className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
+                  message.is_user
+                    ? 'bg-gradient-to-br from-[#3b82f6] to-[#60a5fa] text-white rounded-br-md'
+                    : 'bg-white text-gray-800 rounded-tl-md'
+                }`}
+              >
+                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                <p
+                  className={`text-xs mt-2 text-left ${
+                    message.is_user ? 'text-blue-50' : 'text-gray-400'
                   }`}
                 >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                  <p
-                    className={`text-xs mt-2 text-left ${
-                      message.is_user ? 'text-blue-50' : 'text-gray-400'
-                    }`}
-                  >
-                    {formatTime(message.created_at)}
-                  </p>
-                </div>
+                  {formatTime(message.created_at)}
+                </p>
               </div>
-            ))
+            </div>
+          ))}
+
+          {messages.length > 0 && messages[messages.length - 1]?.is_user === false && suggestedPrompts.length > 0 && (
+            <div className="mt-4 space-y-2 max-w-md mx-auto">
+              {suggestedPrompts.map((prompt, index) => (
+                <button
+                  key={index}
+                  onClick={() => onSendMessage(prompt)}
+                  disabled={isLoading}
+                  className="w-full p-4 bg-white hover:bg-gray-50 rounded-2xl text-right transition-all duration-200 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between group"
+                >
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-800 leading-relaxed">
+                      {prompt}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {index === 0 ? 'در یکی از خدمات شهرزاد نیاز به کمک دارم.' :
+                       index === 1 ? 'می‌خواهم برای تیم پشتیبانی پیام ارسال کنم.' :
+                       'می‌خواهم خودم پاسخ را پیدا کنم.'}
+                    </p>
+                  </div>
+                  <svg className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors flex-shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+              ))}
+            </div>
           )}
+
 
           {isLoading && (
             <div className="flex gap-2 justify-start animate-fade-in">
               <div className="flex-shrink-0 mt-2">
-                <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" fill="#3b82f6" opacity="0.1"/>
-                    <circle cx="9" cy="10" r="1.5" fill="#3b82f6"/>
-                    <circle cx="15" cy="10" r="1.5" fill="#3b82f6"/>
-                    <path d="M9 14 Q12 16 15 14" stroke="#3b82f6" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-                  </svg>
-                </div>
+                <img
+                  src="/bot-icon.png"
+                  alt="دستیار هوشمند"
+                  className="w-10 h-10 object-contain"
+                />
               </div>
               <div className="bg-white rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                 <p className="text-sm text-gray-600">در حال نوشتن...</p>

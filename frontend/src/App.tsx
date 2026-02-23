@@ -62,7 +62,16 @@ function App() {
     if (data) {
       setSessions((prev) => [data, ...prev]);
       setCurrentSessionId(data.id);
-      setMessages([]);
+
+      const welcomeMessage: Message = {
+        id: 'welcome-' + data.id,
+        session_id: data.id,
+        content: 'سلام داوود!\n\nمن دستیار هوشمند تو در شهرزاد هستم تا تجربه بهتری اینجا داشته باشی.\n\nبهم بگو چطوری می‌تونم کمک کنم؟',
+        is_user: false,
+        created_at: new Date().toISOString(),
+      };
+
+      setMessages([welcomeMessage]);
       setShowWelcome(false);
     }
   };
