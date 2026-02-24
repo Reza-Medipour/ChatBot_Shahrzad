@@ -85,7 +85,7 @@ export default function ChatInterface({ messages, onSendMessage, isLoading, onOp
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex gap-2 ${message.is_user ? 'justify-end' : 'justify-start'} animate-fade-in`}
+              className={`flex gap-2 ${message.is_user ? 'justify-start' : 'justify-end'} animate-fade-in`}
             >
               {!message.is_user && (
                 <div className="flex-shrink-0 mt-2">
