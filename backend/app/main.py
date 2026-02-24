@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import get_settings
 from .database import engine, Base
-from .routes import auth, conversations, chat
+# from .routes import auth, conversations, chat
+from .routes import conversations, chat
 from sqlalchemy import text
 import logging
 
