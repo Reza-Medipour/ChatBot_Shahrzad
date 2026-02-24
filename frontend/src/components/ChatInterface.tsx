@@ -351,9 +351,8 @@
 
 
 
-
 import { useState, useEffect, useRef } from 'react';
-import { Send, User, Menu } from 'lucide-react';
+import { Send } from 'lucide-react';
 import type { Message } from '../lib/api';
 
 interface ChatInterfaceProps {
@@ -361,6 +360,8 @@ interface ChatInterfaceProps {
   onSendMessage: (content: string) => void;
   isLoading: boolean;
   onOpenSidebar: () => void;
+  onCloseChat: () => void;
+  suggestedPrompts?: string[];
 }
 
 export default function ChatInterface({
@@ -368,6 +369,8 @@ export default function ChatInterface({
   onSendMessage,
   isLoading,
   onOpenSidebar,
+  onCloseChat,
+  suggestedPrompts = [],
 }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -376,6 +379,12 @@ export default function ChatInterface({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const formatTime = (date: string) =>
+    new Date(date).toLocaleTimeString('fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!inputValue.trim() || isLoading) return;
@@ -383,138 +392,140 @@ export default function ChatInterface({
     setInputValue('');
   };
 
-  const formatTime = (dateString: string) =>
-    new Date(dateString).toLocaleTimeString('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-
   return (
-    <div className="flex-1 flex flex-col bg-gradient-to-br from-gray-50 to-blue-50 h-full">
+    <div className="flex-1 flex flex-col bg-white h-full">
       {/* Header */}
-      <div className="relative bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] rounded-b-3xl shadow-md">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={onOpenSidebar}
-            className="p-2 bg-white/20 hover:bg-white/30 rounded-lg"
-          >
-            <Menu className="w-6 h-6 text-white" />
-          </button>
+      <div className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] px-4 py-4 flex items-center justify-between">
+        <button
+          onClick={onOpenSidebar}
+          className="text-white text-sm bg-white/20 px-3 py-1 rounded-full"
+        >
+          پیام‌های قبلی
+        </button>
 
-          <h2 className="text-white font-bold text-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-white font-bold">
             دستیار هوشمند شهرزاد
-          </h2>
-
-          <div className="w-8" />
-        </div>
-
-        {/* Floating Bot Icon */}
-        <div className="absolute -bottom-6 right-4 w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center">
+          </span>
           <img
             src="/image copy.png"
+            className="w-9 h-9"
             alt="bot"
-            className="w-8 h-8"
           />
         </div>
+
+        <button
+          onClick={onCloseChat}
+          className="text-white text-xl px-2"
+        >
+          ✕
+        </button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 pt-8">
-        <div className="space-y-4">
-          {messages.map((message) => (
+      <div className="flex-1 overflow-y-auto p-4 bg-[#f5f7fa] space-y-4">
+        {messages.map((m) => {
+          const isUser = m.is_user;
+
+          return (
             <div
-              key={message.id}
+              key={m.id}
               className={`flex items-end gap-2 ${
-                message.is_user ? 'justify-end' : 'justify-start'
+                isUser
+                  ? 'flex-row-reverse justify-start'
+                  : 'flex-row justify-start'
               }`}
             >
-              {/* Bot avatar */}
-              {!message.is_user && (
+              {/* Avatar */}
+              {isUser ? (
+                <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
+                  👤
+                </div>
+              ) : (
                 <img
                   src="/image copy.png"
-                  alt="bot"
                   className="w-8 h-8"
+                  alt="bot"
                 />
               )}
 
               {/* Bubble */}
               <div
-                className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-md ${
-                  message.is_user
-                    ? 'bg-gradient-to-br from-[#1e40af] to-[#3b82f6] text-white text-right'
-                    : 'bg-white text-gray-800 text-right'
+                className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
+                  isUser
+                    ? 'bg-blue-500 text-white rounded-tr-md text-right'
+                    : 'bg-white text-gray-800 rounded-tl-md text-right'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">
-                  {message.content}
+                <p className="text-sm whitespace-pre-wrap">
+                  {m.content}
                 </p>
-                <p
-                  className={`text-xs mt-2 ${
-                    message.is_user ? 'text-blue-100' : 'text-gray-400'
+                <div
+                  className={`text-[11px] mt-1 ${
+                    isUser
+                      ? 'text-blue-100 text-left'
+                      : 'text-gray-400 text-right'
                   }`}
                 >
-                  {formatTime(message.created_at)}
-                </p>
-              </div>
-
-              {/* User avatar */}
-              {message.is_user && (
-                <div className="bg-gradient-to-br from-gray-400 to-gray-500 p-2 rounded-xl">
-                  <User className="w-4 h-4 text-white" />
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Typing */}
-          {isLoading && (
-            <div className="flex items-end gap-2 justify-start">
-              <img
-                src="/image copy.png"
-                className="w-8 h-8"
-              />
-              <div className="bg-white rounded-2xl px-4 py-2 shadow">
-                <div className="flex gap-1">
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100" />
-                  <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200" />
+                  {formatTime(m.created_at)}
                 </div>
               </div>
             </div>
-          )}
+          );
+        })}
 
-          <div ref={messagesEndRef} />
-        </div>
+        {/* Suggested prompts – فقط زیر پیام اول ربات */}
+        {suggestedPrompts.length > 0 && (
+          <div className="space-y-2">
+            {suggestedPrompts.map((p, i) => (
+              <button
+                key={i}
+                onClick={() => onSendMessage(p)}
+                className="w-full bg-white rounded-xl p-3 text-sm shadow text-right hover:bg-gray-50"
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Typing */}
+        {isLoading && (
+          <div className="flex items-end gap-2">
+            <img
+              src="/image copy.png"
+              className="w-8 h-8"
+              alt="bot"
+            />
+            <div className="bg-white px-4 py-2 rounded-xl text-sm text-gray-500">
+              در حال نوشتن...
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <div className="border-t bg-white px-4 py-3">
-        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
-          <textarea
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder="پیام خود را بنویسید..."
-            className="flex-1 bg-gray-100 rounded-xl px-3 py-2 text-right text-sm resize-none outline-none"
-            disabled={isLoading}
-            dir="rtl"
-            rows={1}
-            onInput={(e) => {
-              const el = e.target as HTMLTextAreaElement;
-              el.style.height = 'auto';
-              el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-            }}
-          />
-
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isLoading}
-            className="bg-gradient-to-r from-[#1e40af] to-[#3b82f6] text-white px-4 py-2 rounded-xl shadow flex items-center gap-2 disabled:opacity-50"
-          >
-            <Send className="w-4 h-4" />
-            ارسال
-          </button>
-        </form>
-      </div>
+      <form
+        onSubmit={handleSubmit}
+        className="border-t px-4 py-3 flex gap-2 items-center"
+      >
+        <input
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          className="flex-1 bg-gray-100 rounded-xl px-4 py-2 text-right outline-none"
+          placeholder="پیام خود را بنویسید..."
+          dir="rtl"
+        />
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="bg-blue-500 text-white p-2 rounded-xl"
+        >
+          <Send size={18} />
+        </button>
+      </form>
     </div>
   );
 }
