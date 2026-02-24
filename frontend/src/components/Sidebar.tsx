@@ -158,9 +158,6 @@
 
 
 
-
-
-
 import { Plus, MessageSquare, Trash2, X, LogOut } from 'lucide-react';
 import type { ChatSession } from '../lib/api';
 
@@ -187,6 +184,8 @@ export default function Sidebar({
   isOpen,
   onClose,
 }: SidebarProps) {
+  if (!isOpen) return null;
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -203,98 +202,101 @@ export default function Sidebar({
     });
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 bg-gradient-to-br from-[#eaf2ff] via-[#f5f9ff] to-[#ffffff] flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-[#2563eb] to-[#3b82f6] shadow-md">
-        <div className="flex items-center gap-3">
-          <MessageSquare className="w-6 h-6 text-white" />
-          <h2 className="text-white font-bold text-base">گفتگوهای قبلی</h2>
+    <div className="fixed inset-0 z-50 bg-[#f5f7fa]">
+      {/* Mobile frame – identical to chat */}
+      <div className="h-screen max-w-md mx-auto bg-white shadow-xl flex flex-col">
+        {/* Header – same height & font as chat */}
+        <div className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] px-4 py-4 flex items-center justify-between">
+          <span className="text-white font-bold text-base">
+            گفتگوهای قبلی
+          </span>
+
+          <button
+            onClick={onClose}
+            className="text-white text-xl px-2"
+            aria-label="close"
+          >
+            ✕
+          </button>
         </div>
 
-        <button
-          onClick={onClose}
-          className="text-white p-2 rounded-full hover:bg-white/20 transition"
-        >
-          <X className="w-6 h-6" />
-        </button>
-      </div>
+        {/* New chat button */}
+        <div className="p-4">
+          <button
+            onClick={() => {
+              onNewChat();
+              onClose();
+            }}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 transition"
+          >
+            <Plus className="w-5 h-5" />
+            گفتگوی جدید
+          </button>
+        </div>
 
-      {/* New Chat Button */}
-      <div className="p-4">
-        <button
-          onClick={() => {
-            onNewChat();
-            onClose();
-          }}
-          className="w-full bg-[#3b82f6] hover:bg-[#2563eb] text-white font-bold py-3 rounded-2xl shadow-lg flex items-center justify-center gap-2 transition"
-        >
-          <Plus className="w-5 h-5" />
-          آغاز گفتگوی جدید
-        </button>
-      </div>
-
-      {/* Sessions */}
-      <div className="flex-1 overflow-y-auto px-4 space-y-3">
-        {sessions.length === 0 ? (
-          <div className="text-center mt-20 text-gray-500">
-            <MessageSquare className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">هنوز گفتگویی وجود ندارد</p>
-          </div>
-        ) : (
-          sessions.map((session) => (
-            <div
-              key={session.id}
-              onClick={() => {
-                onSelectSession(session.id);
-                onClose();
-              }}
-              className={`relative rounded-2xl p-4 cursor-pointer transition-all ${
-                currentSessionId === session.id
-                  ? 'bg-blue-100 border-2 border-blue-300 shadow-md'
-                  : 'bg-white shadow-sm hover:bg-blue-50'
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <MessageSquare className="w-5 h-5 text-blue-600 mt-1" />
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-gray-800 truncate">
-                    {session.title}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatDate(session.updated_at)}
-                  </p>
-                </div>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteSession(session.id);
-                  }}
-                  className="p-1 rounded-lg hover:bg-red-100"
-                >
-                  <Trash2 className="w-4 h-4 text-red-500" />
-                </button>
-              </div>
+        {/* Sessions list */}
+        <div className="flex-1 overflow-y-auto px-4 space-y-2">
+          {sessions.length === 0 ? (
+            <div className="text-center mt-20 text-gray-400">
+              <MessageSquare className="w-10 h-10 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">هنوز گفتگویی وجود ندارد</p>
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            sessions.map((session) => (
+              <div
+                key={session.id}
+                onClick={() => {
+                  onSelectSession(session.id);
+                  onClose();
+                }}
+                className={`rounded-xl p-3 cursor-pointer transition border ${
+                  currentSessionId === session.id
+                    ? 'bg-blue-50 border-blue-300'
+                    : 'bg-white border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <MessageSquare className="w-4 h-4 text-blue-500 mt-1" />
 
-      {/* Footer */}
-      <div className="p-4 border-t border-blue-200">
-        <button
-          onClick={() => {
-            onLogout();
-            onClose();
-          }}
-          className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 rounded-2xl flex items-center justify-center gap-2 transition"
-        >
-          <LogOut className="w-5 h-5" />
-          خروج
-        </button>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">
+                      {session.title}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {formatDate(session.updated_at)}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteSession(session.id);
+                    }}
+                    className="p-1 rounded-md hover:bg-red-100"
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t">
+          <button
+            onClick={() => {
+              onLogout();
+              onClose();
+              onBackToWelcome();
+            }}
+            className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-medium py-3 rounded-xl flex items-center justify-center gap-2 transition"
+          >
+            <LogOut className="w-5 h-5" />
+            خروج
+          </button>
+        </div>
       </div>
     </div>
   );
