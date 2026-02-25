@@ -74,10 +74,8 @@
 
 
 
-
-
-import React from "react";
-import { ChevronRight, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import AppHeader from "./AppHeader";
 
 interface WelcomePageProps {
   onStartChat: () => void;
@@ -86,37 +84,23 @@ interface WelcomePageProps {
 export default function WelcomePage({ onStartChat }: WelcomePageProps) {
   return (
     <div className="fixed inset-0 z-40 bg-[#f5f7fa]">
-      {/* Mobile App Frame – EXACTLY like Sidebar */}
       <div className="h-screen max-w-md mx-auto bg-white shadow-xl flex flex-col">
-        
-        {/* Header – same height & typography as Sidebar */}
-        <div className="px-4 py-4 flex items-center justify-between border-b">
-          <span className="font-bold text-base text-gray-900">
-            گفتگوهای قبلی
-          </span>
 
-          <ChevronRight className="w-5 h-5 text-gray-400" />
-        </div>
+        {/* ✅ Shared Header */}
+        <AppHeader title="گفتگوهای قبلی" />
 
-        {/* New Chat Button – same spacing logic as Sidebar */}
+        {/* New Chat */}
         <div className="p-4">
           <button
             onClick={onStartChat}
-            className="
-              w-full
-              bg-blue-500 hover:bg-blue-600
-              text-white font-medium
-              py-3 rounded-xl
-              flex items-center justify-center gap-2
-              transition
-            "
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 transition"
           >
             <Plus className="w-5 h-5" />
             آغاز گفتگوی جدید
           </button>
         </div>
 
-        {/* Empty State – centered like native apps */}
+        {/* Empty State */}
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
           <img
             src="/image copy.png"
