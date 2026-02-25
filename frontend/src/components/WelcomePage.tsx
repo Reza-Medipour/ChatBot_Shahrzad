@@ -73,8 +73,11 @@
 
 
 
+
+
+
 import React from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 
 interface WelcomePageProps {
   onStartChat: () => void;
@@ -82,94 +85,55 @@ interface WelcomePageProps {
 
 export default function WelcomePage({ onStartChat }: WelcomePageProps) {
   return (
-    <div
-      className="w-full min-h-screen bg-white flex flex-col"
-      style={{ direction: "rtl" }}
-    >
-      {/* Header */}
-      <header
-        className="flex items-center justify-between px-4"
-        style={{
-          height: 52,
-          borderBottom: "1px solid #F1F1F1",
-        }}
-      >
-        <span
-          style={{
-            fontSize: 14,
-            fontWeight: 600,
-            color: "#111827",
-          }}
-        >
-          گفتگوهای قبلی
-        </span>
+    <div className="fixed inset-0 z-40 bg-[#f5f7fa]">
+      {/* Mobile App Frame – EXACTLY like Sidebar */}
+      <div className="h-screen max-w-md mx-auto bg-white shadow-xl flex flex-col">
+        
+        {/* Header – same height & typography as Sidebar */}
+        <div className="px-4 py-4 flex items-center justify-between border-b">
+          <span className="font-bold text-base text-gray-900">
+            گفتگوهای قبلی
+          </span>
 
-        <ChevronRight size={20} color="#9CA3AF" />
-      </header>
-
-      {/* New Chat Button */}
-      <div
-        className="px-4"
-        style={{
-          marginTop: 12,
-        }}
-      >
-        <button
-          onClick={onStartChat}
-          className="w-full"
-          style={{
-            height: 44,
-            borderRadius: 14,
-            backgroundColor: "#2F7AF8",
-            color: "#FFFFFF",
-            fontSize: 14,
-            fontWeight: 600,
-            border: "none",
-          }}
-        >
-          آغاز گفتگوی جدید
-        </button>
-      </div>
-
-      {/* Empty State */}
-      <main className="flex-1 flex flex-col items-center justify-center text-center">
-        {/* Bot Image */}
-        <img
-          src="/image copy.png"
-          alt="Chatbot Empty State"
-          style={{
-            width: 104,
-            height: 104,
-            marginBottom: 20,
-            objectFit: "contain",
-          }}
-        />
-
-        {/* Title */}
-        <div
-          style={{
-            fontSize: 15,
-            fontWeight: 700,
-            color: "#111827",
-            marginBottom: 8,
-          }}
-        >
-          تا کنون گفتگویی نداشته‌اید
+          <ChevronRight className="w-5 h-5 text-gray-400" />
         </div>
 
-        {/* Description */}
-        <p
-          style={{
-            fontSize: 13,
-            lineHeight: "20px",
-            color: "#6B7280",
-            maxWidth: 250,
-          }}
-        >
-          گفتگوهای یک دستیار هوشمند شهرزاد در این قسمت نمایش داده
-          می‌شوند.
-        </p>
-      </main>
+        {/* New Chat Button – same spacing logic as Sidebar */}
+        <div className="p-4">
+          <button
+            onClick={onStartChat}
+            className="
+              w-full
+              bg-blue-500 hover:bg-blue-600
+              text-white font-medium
+              py-3 rounded-xl
+              flex items-center justify-center gap-2
+              transition
+            "
+          >
+            <Plus className="w-5 h-5" />
+            آغاز گفتگوی جدید
+          </button>
+        </div>
+
+        {/* Empty State – centered like native apps */}
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+          <img
+            src="/image copy.png"
+            alt="Chatbot Empty"
+            className="w-28 h-28 mb-5 object-contain"
+          />
+
+          <h2 className="text-[15px] font-bold text-gray-900 mb-2">
+            تا کنون گفتگویی نداشته‌اید
+          </h2>
+
+          <p className="text-[13px] text-gray-500 leading-relaxed max-w-[260px]">
+            گفتگوهای یک دستیار هوشمند شهرزاد در این قسمت
+            نمایش داده می‌شوند.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
