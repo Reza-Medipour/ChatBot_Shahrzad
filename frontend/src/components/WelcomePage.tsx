@@ -71,6 +71,8 @@
 
 
 
+
+
 import React from "react";
 import { ChevronRight } from "lucide-react";
 
@@ -80,57 +82,94 @@ interface WelcomePageProps {
 
 export default function WelcomePage({ onStartChat }: WelcomePageProps) {
   return (
-    <div className="min-h-screen w-full bg-white flex flex-col">
-
+    <div
+      className="w-full min-h-screen bg-white flex flex-col"
+      style={{ direction: "rtl" }}
+    >
       {/* Header */}
-      <div className="h-14 px-4 flex items-center justify-between border-b border-gray-100">
-        <span className="text-sm font-semibold text-gray-900">
+      <header
+        className="flex items-center justify-between px-4"
+        style={{
+          height: 52,
+          borderBottom: "1px solid #F1F1F1",
+        }}
+      >
+        <span
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: "#111827",
+          }}
+        >
           گفتگوهای قبلی
         </span>
-        <ChevronRight className="w-5 h-5 text-gray-400" />
-      </div>
+
+        <ChevronRight size={20} color="#9CA3AF" />
+      </header>
 
       {/* New Chat Button */}
-      <div className="px-4 mt-4">
+      <div
+        className="px-4"
+        style={{
+          marginTop: 12,
+        }}
+      >
         <button
           onClick={onStartChat}
-          className="
-            w-full h-11
-            bg-[#2F7AF8]
-            text-white text-sm font-semibold
-            rounded-xl
-            flex items-center justify-center
-            active:scale-[0.98]
-            transition
-          "
+          className="w-full"
+          style={{
+            height: 44,
+            borderRadius: 14,
+            backgroundColor: "#2F7AF8",
+            color: "#FFFFFF",
+            fontSize: 14,
+            fontWeight: 600,
+            border: "none",
+          }}
         >
           آغاز گفتگوی جدید
         </button>
       </div>
 
       {/* Empty State */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-
-        {/* Bot Icon */}
-        <div className="w-28 h-28 mb-6">
-          <img
-            src="/bot-empty.png"
-            alt="Chatbot"
-            className="w-full h-full object-contain"
-          />
-        </div>
+      <main className="flex-1 flex flex-col items-center justify-center text-center">
+        {/* Bot Image */}
+        <img
+          src="/image copy.png"
+          alt="Chatbot Empty State"
+          style={{
+            width: 104,
+            height: 104,
+            marginBottom: 20,
+            objectFit: "contain",
+          }}
+        />
 
         {/* Title */}
-        <h2 className="text-[15px] font-bold text-gray-900 mb-2">
+        <div
+          style={{
+            fontSize: 15,
+            fontWeight: 700,
+            color: "#111827",
+            marginBottom: 8,
+          }}
+        >
           تا کنون گفتگویی نداشته‌اید
-        </h2>
+        </div>
 
         {/* Description */}
-        <p className="text-[13px] text-gray-500 leading-relaxed">
-          گفتگوهای یک دستیار هوشمند شهرزاد در این قسمت
-          نمایش داده می‌شوند.
+        <p
+          style={{
+            fontSize: 13,
+            lineHeight: "20px",
+            color: "#6B7280",
+            maxWidth: 250,
+          }}
+        >
+          گفتگوهای یک دستیار هوشمند شهرزاد در این قسمت نمایش داده
+          می‌شوند.
         </p>
-      </div>
+      </main>
     </div>
   );
 }
