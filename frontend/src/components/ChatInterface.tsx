@@ -358,8 +358,6 @@
 
 
 
-
-
 import { useState, useEffect, useRef } from 'react';
 import { Send } from 'lucide-react';
 import type { Message } from '../lib/api';
@@ -386,7 +384,7 @@ export default function ChatInterface({
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const formatTime = (date: string) =>
     new Date(date).toLocaleTimeString('fa-IR', {
@@ -402,143 +400,143 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-white h-full">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] px-4 py-4 flex items-center justify-between">
-        <button
-          onClick={onOpenSidebar}
-          className="text-white text-sm bg-white/20 px-3 py-1 rounded-full"
-        >
-          پیام‌های قبلی
-        </button>
+    <div className="fixed inset-0 z-40 bg-[#f5f7fa]">
+      {/* Mobile App Frame – SAME as Sidebar & Welcome */}
+      <div className="h-screen max-w-md mx-auto bg-white shadow-xl flex flex-col">
 
-        <div className="flex items-center gap-2">
-          <span className="text-white font-bold">
-            دستیار هوشمند شهرزاد
-          </span>
-          <img
-            src="/image copy.png"
-            className="w-9 h-9"
-            alt="bot"
-          />
-        </div>
+        {/* Header */}
+        <div className="px-4 py-4 flex items-center justify-between border-b">
+          <button
+            onClick={onOpenSidebar}
+            className="text-sm text-blue-600 font-medium"
+          >
+            پیام‌های قبلی
+          </button>
 
-        <button
-          onClick={onCloseChat}
-          className="text-white text-xl px-2"
-        >
-          ✕
-        </button>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 bg-[#f5f7fa] space-y-4">
-        {messages.map((m) => {
-          const isUser = m.is_user;
-
-          return (
-            <div
-              key={m.id}
-              className={`flex items-end gap-2 ${
-                isUser
-                  ? 'flex-row-reverse justify-start'
-                  : 'flex-row justify-start'
-              }`}
-            >
-              {/* Avatar */}
-              {isUser ? (
-                <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
-                  👤
-                </div>
-              ) : (
-                <img
-                  src="/image copy.png"
-                  className="w-8 h-8"
-                  alt="bot"
-                />
-              )}
-
-              {/* Bubble */}
-              <div
-                className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
-                  isUser
-                    ? 'bg-blue-500 text-white rounded-tr-md text-right'
-                    : 'bg-white text-gray-800 rounded-tl-md text-right'
-                }`}
-              >
-                <p className="text-sm whitespace-pre-wrap">
-                  {m.content}
-                </p>
-                <div
-                  className={`text-[11px] mt-1 ${
-                    isUser
-                      ? 'text-blue-100 text-left'
-                      : 'text-gray-400 text-right'
-                  }`}
-                >
-                  {formatTime(m.created_at)}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-
-        {/* Suggested prompts – فقط زیر پیام اول ربات */}
-        {suggestedPrompts.length > 0 && (
-          <div className="space-y-2">
-            {suggestedPrompts.map((p, i) => (
-              <button
-                key={i}
-                onClick={() => onSendMessage(p)}
-                className="w-full bg-white rounded-xl p-3 text-sm shadow text-right hover:bg-gray-50"
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Typing */}
-        {isLoading && (
-          <div className="flex items-end gap-2">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-gray-900 text-sm">
+              دستیار هوشمند شهرزاد
+            </span>
             <img
               src="/image copy.png"
               className="w-8 h-8"
               alt="bot"
             />
-            <div className="bg-white px-4 py-2 rounded-xl text-sm text-gray-500">
-              در حال نوشتن...
-            </div>
           </div>
-        )}
 
-        <div ref={messagesEndRef} />
-      </div>
+          <button
+            onClick={onCloseChat}
+            className="text-gray-400 text-xl px-2"
+            aria-label="close"
+          >
+            ✕
+          </button>
+        </div>
 
-      {/* Input */}
-      <form
-        onSubmit={handleSubmit}
-        className="border-t px-4 py-3 flex gap-2 items-center"
-      >
-        <input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className="flex-1 bg-gray-100 rounded-xl px-4 py-2 text-right outline-none"
-          placeholder="پیام خود را بنویسید..."
-          dir="rtl"
-        />
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="bg-blue-500 text-white p-2 rounded-xl"
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 bg-[#f5f7fa] space-y-4">
+
+          {messages.map((m) => {
+            const isUser = m.is_user;
+
+            return (
+              <div
+                key={m.id}
+                className={`flex items-end gap-2 ${
+                  isUser ? 'flex-row-reverse' : 'flex-row'
+                }`}
+              >
+                {/* Avatar */}
+                {isUser ? (
+                  <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-bold">
+                    👤
+                  </div>
+                ) : (
+                  <img
+                    src="/image copy.png"
+                    className="w-8 h-8"
+                    alt="bot"
+                  />
+                )}
+
+                {/* Bubble */}
+                <div
+                  className={`max-w-[75%] rounded-2xl px-4 py-3 shadow-sm ${
+                    isUser
+                      ? 'bg-blue-500 text-white rounded-tr-md text-right'
+                      : 'bg-white text-gray-800 rounded-tl-md text-right'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">
+                    {m.content}
+                  </p>
+                  <div
+                    className={`text-[11px] mt-1 ${
+                      isUser
+                        ? 'text-blue-100 text-left'
+                        : 'text-gray-400 text-right'
+                    }`}
+                  >
+                    {formatTime(m.created_at)}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Suggested Prompts */}
+          {suggestedPrompts.length > 0 && (
+            <div className="space-y-2 pt-2">
+              {suggestedPrompts.map((p, i) => (
+                <button
+                  key={i}
+                  onClick={() => onSendMessage(p)}
+                  className="w-full bg-white rounded-xl p-3 text-sm shadow text-right hover:bg-gray-50"
+                >
+                  {p}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Typing Indicator */}
+          {isLoading && (
+            <div className="flex items-end gap-2">
+              <img
+                src="/image copy.png"
+                className="w-8 h-8"
+                alt="bot"
+              />
+              <div className="bg-white px-4 py-2 rounded-xl text-sm text-gray-500">
+                در حال نوشتن...
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <form
+          onSubmit={handleSubmit}
+          className="border-t px-4 py-3 flex gap-2 items-center bg-white"
         >
-          <Send size={18} />
-        </button>
-      </form>
+          <input
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            className="flex-1 bg-gray-100 rounded-xl px-4 py-2 text-right outline-none text-sm"
+            placeholder="پیام خود را بنویسید..."
+            dir="rtl"
+          />
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="bg-blue-500 text-white p-2 rounded-xl disabled:opacity-50"
+          >
+            <Send size={18} />
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
-
-
-
-
